@@ -8,6 +8,11 @@ use App\Models\User;
 class AuthController extends Controller
 {
     public function login(Request $request){
+        $this->validate($request, [
+            'email' => 'required|email',
+            'password' => 'required|string'
+        ]);
+
         $credentials = request(['email', 'password']);
         
         if(!$token = auth()->attempt($credentials)){
@@ -18,6 +23,12 @@ class AuthController extends Controller
     }
 
     public function register(Request $request){
+        $this->validate($request, [
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string'
+        ]);
+
         try {
             $user = new User();
             $user->name = $request->name;
