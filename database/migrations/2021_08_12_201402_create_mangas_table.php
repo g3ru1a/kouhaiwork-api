@@ -19,7 +19,6 @@ class CreateMangasTable extends Migration
             $table->text('synopsis');
             $table->text('alternative_titles')->nullable();
             $table->tinyText('status');
-            $table->text('cover_url');
             $table->string('origin')->default('jp');
             $table->timestamps();
         });

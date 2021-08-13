@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class MangaController extends Controller
 {
     public function index(){
-        return Manga::with('genres', 'themes', 'demographics')->get();
+        return Manga::with('cover', 'genres', 'themes', 'demographics')->get()->last();
     }
 
     public function store(Request $request){
@@ -28,6 +28,8 @@ class MangaController extends Controller
             $post->status = $request->status;
             $post->origin = $request->origin;
             if($post->save()){
+                $cover = MediaController::upload($request, 'cover', 'covers');
+                $post->cover()->save($cover);
                 return response()->json(['status' => 'success', 'message' => 'Manga Created Successfully.']);
             }
         } catch (\Exception $e) {

@@ -9,6 +9,12 @@ class Manga extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
+    public function cover(){
+        return $this->hasOne(Media::class, 'parent_id');
+    }
+
     public function genres(){
         return $this->belongsToMany(MangaGenre::class);
     }
