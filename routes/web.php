@@ -23,11 +23,36 @@ $router->group(['prefix' => '/api'], function () use ($router){
     $router->post('/login', 'AuthController@login');
     $router->post('/register', 'AuthController@register');
 
+    //Manga
+    $router->get('/mangas', 'MangaController@index');
+    //MangaGenre
+    $router->get('/manga/genres', 'MangaGenreController@index');
+    //MangaThemes
+    $router->get('/manga/themes', 'MangaThemeController@index');
+    //MangaDemographic
+    $router->get('/manga/demographic', 'MangaDemographicController@index');
+
     $router->group(['middleware' => 'auth'], function () use ($router){
         $router->post('/logout', 'AuthController@logout');
-        $router->get('/posts', 'PostController@index');
-        $router->post('/posts', 'PostController@store');
-        $router->put('/posts/{id}', 'PostController@update');
-        $router->delete('/posts/{id}', 'PostController@destroy');
+        
+        //Manga
+        $router->post('/mangas', 'MangaController@store');
+        $router->put('/mangas/{id}', 'MangaController@update');
+        $router->delete('/mangas/{id}', 'MangaController@delete');
+
+        //MangaGenre
+        $router->post('/manga/genres', 'MangaGenreController@store');
+        $router->put('/manga/genres/{id}', 'MangaGenreController@update');
+        $router->delete('/manga/genres/{id}', 'MangaGenreController@delete');
+
+        //MangaThemes
+        $router->post('/manga/themes', 'MangaThemeController@store');
+        $router->put('/manga/themes/{id}', 'MangaThemeController@update');
+        $router->delete('/manga/themes/{id}', 'MangaThemeController@delete');
+
+        //MangaDemographic
+        $router->post('/manga/demographic', 'MangaDemographicController@store');
+        $router->put('/manga/demographic/{id}', 'MangaDemographicController@update');
+        $router->delete('/manga/demographic/{id}', 'MangaDemographicController@delete');
     });
 });
