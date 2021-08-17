@@ -17,13 +17,18 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['prefix' => '/api'], function () use ($router){
+$router->group(['prefix' => '/api', 'middleware' => 'cors'], function () use ($router){
 
     $router->post('/login', 'AuthController@login');
     $router->post('/register', 'AuthController@register');
 
     //Manga
     $router->get('/mangas', 'MangaController@index');
+    $router->get('/mangas/{id}', 'MangaController@get');
+
+    $router->get('/manga/latest', 'MangaController@latest');
+    $router->get('/manga/all', 'MangaController@all');
+    $router->get('/manga/week', 'MangaController@week');
     //MangaGenre
     $router->get('/manga/genres', 'MangaGenreController@index');
     //MangaThemes

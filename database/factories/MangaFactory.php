@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Group;
 use App\Models\Manga;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,7 +15,7 @@ class MangaFactory extends Factory
     	return [
             'title' => $this->faker->sentence,
             'synopsis' => $this->faker->paragraph,
-            'alternative_titles' => $this->faker->sentence,
+            'alternative_titles' => [$this->faker->sentence,$this->faker->sentence],
             'status' => 'ongoing',
     	];
     }

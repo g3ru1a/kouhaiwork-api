@@ -17,7 +17,7 @@ class CreateMangasTable extends Migration
             $table->id();
             $table->string('title');
             $table->text('synopsis');
-            $table->text('alternative_titles')->nullable();
+            $table->json('alternative_titles')->nullable();
             $table->tinyText('status');
             $table->string('origin')->default('jp');
             $table->timestamps();
@@ -40,6 +40,24 @@ class CreateMangasTable extends Migration
             $table->integer('manga_id');
             $table->integer('manga_demographic_id');
         });
+        
+        Schema::create('group_manga', function (Blueprint $table) {
+            $table->id();
+            $table->integer('manga_id');
+            $table->integer('group_id');
+        });
+
+        Schema::create('author_manga', function (Blueprint $table) {
+            $table->id();
+            $table->integer('manga_id');
+            $table->integer('author_id');
+        });
+
+        Schema::create('artist_manga', function (Blueprint $table) {
+            $table->id();
+            $table->integer('manga_id');
+            $table->integer('artist_id');
+        });
     }
 
     /**
@@ -53,5 +71,8 @@ class CreateMangasTable extends Migration
         Schema::dropIfExists('manga_manga_genres');
         Schema::dropIfExists('manga_manga_theme');
         Schema::dropIfExists('manga_manga_demographic');
+        Schema::dropIfExists('group_manga');
+        Schema::dropIfExists('author_manga');
+        Schema::dropIfExists('artist_manga');
     }
 }

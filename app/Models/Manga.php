@@ -9,6 +9,10 @@ class Manga extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'alternative_titles' => 'array'
+    ];
+
     protected $guarded = [];
 
     public function cover(){
@@ -25,5 +29,17 @@ class Manga extends Model
 
     public function demographics(){
         return $this->belongsToMany(MangaDemographic::class);
+    }
+
+    public function groups(){
+        return $this->belongsToMany(Group::class);
+    }
+
+    public function authors(){
+        return $this->belongsToMany(Author::class);
+    }
+
+    public function artists(){
+        return $this->belongsToMany(Artist::class);
     }
 }
