@@ -26,7 +26,7 @@ class AuthController extends Controller
         $this->validate($request, [
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
-            'password' => 'required|string'
+            'password' => 'required|string|confirmed'
         ]);
 
         try {
@@ -47,11 +47,16 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully Logged Out']);
     }
 
+    public function check(){
+        return response()->json('message', 'Logged In');
+    }
+
     protected function respondWithToken($token){
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
+            'user' => auth()->user()
         ]);
     }
 }

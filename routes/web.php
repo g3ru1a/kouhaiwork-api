@@ -17,7 +17,7 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['prefix' => '/api', 'middleware' => 'cors'], function () use ($router){
+$router->group(['prefix' => '/api'], function () use ($router){
 
     $router->post('/login', 'AuthController@login');
     $router->post('/register', 'AuthController@register');
@@ -36,7 +36,8 @@ $router->group(['prefix' => '/api', 'middleware' => 'cors'], function () use ($r
     //MangaDemographic
     $router->get('/manga/demographic', 'MangaDemographicController@index');
 
-    $router->group(['middleware' => 'auth'], function () use ($router){
+    $router->group(['middleware' => ['auth']], function () use ($router){
+        $router->post('/check', 'AuthController@check');
         $router->post('/logout', 'AuthController@logout');
         
         //Manga
