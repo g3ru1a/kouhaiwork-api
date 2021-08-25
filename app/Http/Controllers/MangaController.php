@@ -28,6 +28,12 @@ class MangaController extends Controller
         return $manga ? $manga : response()->json(['message'=>'Could not find the specified manga in our database.']);
     }
 
+    public function search($search){
+        $s = str_replace('_', ' ', strtolower($search));
+        $manga = Manga::where('title', 'LIKE', '%' . $s . '%')->orWhere('alternative_titles', 'LIKE', '%' . $s . '%')->with('cover')->get();
+        return count($manga) != 0 ? $manga : response()->json(['message' => 'Could not find the specified manga in our database.']);
+    }
+
     public function store(Request $request){
         $this->validate($request, [
             'title' => 'required|string',

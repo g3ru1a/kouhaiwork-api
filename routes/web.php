@@ -25,6 +25,7 @@ $router->group(['prefix' => '/api'], function () use ($router){
     //Manga
     $router->get('/mangas', 'MangaController@index');
     $router->get('/mangas/{id}', 'MangaController@get');
+    $router->get('/manga/search/{search}', 'MangaController@search');
 
     $router->get('/manga/latest', 'MangaController@latest');
     $router->get('/manga/all', 'MangaController@all');
@@ -40,6 +41,9 @@ $router->group(['prefix' => '/api'], function () use ($router){
         $router->post('/check', 'AuthController@check');
         $router->post('/logout', 'AuthController@logout');
         
+        //Chapters
+        $router->post('/chapter/upload', 'ChapterController@upload');
+
         //Manga
         $router->post('/mangas', 'MangaController@store');
         $router->put('/mangas/{id}', 'MangaController@update');

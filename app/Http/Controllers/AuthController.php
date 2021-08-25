@@ -48,7 +48,7 @@ class AuthController extends Controller
     }
 
     public function check(){
-        return response()->json('message', 'Logged In');
+        return response()->json(['message' => 'Logged In']);
     }
 
     protected function respondWithToken($token){

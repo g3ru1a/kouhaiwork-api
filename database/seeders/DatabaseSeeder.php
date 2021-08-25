@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $u = new User(['name'=>'g3ru1a', 'email'=>'test@email.com', 'password'=>app('hash')->make('123456')]);
+        $u = new User(['name'=>'g3ru1a', 'email'=>'test@email.com', 'rank'=>3, 'password'=>app('hash')->make('123456')]);
         $u->save();
         Group::factory()->count(4)->create();
         Manga::factory()
