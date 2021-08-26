@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chapter;
 use App\Models\Manga;
 use App\Models\Page;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 
 class ChapterController extends Controller
@@ -13,10 +14,12 @@ class ChapterController extends Controller
         //validate input
         $this->validate($request,
             [
-                'volume' => 'string',
-                'chapter' => 'required|string',
-                'chapter_name' => 'string',
                 'manga_id' => 'required|string',
+                'volume' => 'string',
+                'chapter' => ['required','numeric', Rule::unique('chapters', 'number')->where(function($query) use ($request) {
+                    return $query->where('manga_id', $request->manga_id);
+                })],
+                'chapter_name' => 'string',
                 'order' => 'required|json',
                 'pages' => 'required',
                 'pages.*' => 'image'
@@ -39,7 +42,7 @@ class ChapterController extends Controller
         if($request->hasFile('pages')){
             $next_id = null;
             for ($i=count($order)-1; $i >= 0; $i--) {
-                $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/'.$manga->name, $next_id !== null ? false : true);
+                $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/'.$manga->title.'/'.$chapter->number, $next_id !== null ? false : true);
                 $chapter->pages()->save($page);
                 $next_id = $page->id;
             }
@@ -48,6 +51,13 @@ class ChapterController extends Controller
     }
 
     public function get($id){
-        return Chapter::with('pages')->find($id);
+        $chapter = Chapter::with('pages')->find($id);
+        $next = Chapter::where('manga_id', $chapter->manga_id)->where('number', '>', $chapter->number)->first();
+        $prev = Chapter::where('manga_id', $chapter->manga_id)->where('number', '<', $chapter->number)->first();
+        return response()->json([
+            'chapter' => $chapter,
+            'next_id' => $next ? $next->id : null,
+            'prev_id' => $prev ? $prev->id : null,
+        ]);
     }
 }
