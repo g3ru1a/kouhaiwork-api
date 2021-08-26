@@ -7,25 +7,30 @@ use Illuminate\Http\Request;
 
 class MangaController extends Controller
 {
+    private $manga_opt = ['cover', 'genres', 'themes', 'demographics', 'groups', 'authors', 'artists', 'chapters'];
     public function index(){
-        return Manga::with('cover', 'genres', 'themes', 'demographics', 'groups', 'authors', 'artists')->get()->first();
+        return Manga::with($this->manga_opt)->get()->first();
     }
 
     public function all(){
-        return Manga::with('cover', 'genres', 'themes', 'demographics', 'groups', 'authors', 'artists')->get();
+        return Manga::with($this->manga_opt)->get();
     }
 
     public function week(){
-        return Manga::with('cover', 'genres', 'themes', 'demographics', 'groups', 'authors', 'artists')->where('id', '<', '3')->get();
+        return Manga::with($this->manga_opt)->where('id', '<', '3')->get();
     }
 
     public function latest(){
-        return Manga::with('cover', 'genres', 'themes', 'demographics', 'groups', 'authors', 'artists')->get()->last();
+        return Manga::with($this->manga_opt)->get()->last();
     }
 
     public function get($id) {
-        $manga = Manga::with('cover', 'genres', 'themes', 'demographics', 'groups', 'authors', 'artists')->find($id);
+        $manga = Manga::with($this->manga_opt)->find($id);
         return $manga ? $manga : response()->json(['message'=>'Could not find the specified manga in our database.']);
+    }
+
+    public function chapters($id) {
+        return Manga::with(['chapters.pages'])->findOrFail($id)->chapters;
     }
 
     public function search($search){

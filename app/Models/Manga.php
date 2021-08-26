@@ -16,7 +16,7 @@ class Manga extends Model
     protected $guarded = [];
 
     public function cover(){
-        return $this->hasOne(Media::class, 'parent_id');
+        return $this->morphOne(Media::class, 'imageable');
     }
 
     public function genres(){
@@ -41,5 +41,9 @@ class Manga extends Model
 
     public function artists(){
         return $this->belongsToMany(Artist::class);
+    }
+
+    public function chapters(){
+        return $this->hasMany(Chapter::class)->orderBy('number', 'asc');
     }
 }

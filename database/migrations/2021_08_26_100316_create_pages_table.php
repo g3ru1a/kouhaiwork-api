@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateChaptersTable extends Migration
+class CreatePagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateChaptersTable extends Migration
      */
     public function up()
     {
-        Schema::create('chapters', function (Blueprint $table) {
+        Schema::create('pages', function (Blueprint $table) {
             $table->id();
-            $table->integer('volume')->nullable();
-            $table->float('number');
-            $table->string('name')->nullable();
-            $table->integer('manga_id');
+            $table->integer('chapter_id')->default(0);
+            $table->integer('next_id')->nullable();
+            $table->boolean('first')->default(false);
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ class CreateChaptersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('chapters');
+        Schema::dropIfExists('pages');
     }
 }
