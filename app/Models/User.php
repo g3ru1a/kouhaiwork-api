@@ -41,4 +41,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         return [];
     }
+
+    public function memberInGroups(){
+        return $this->belongsToMany(Group::class);
+    }
+
+    public function ownedGroups() {
+        return $this->hasMany(Group::class, 'owner_id');
+    }
 }

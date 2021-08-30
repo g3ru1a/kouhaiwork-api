@@ -43,7 +43,23 @@ $router->group(['prefix' => '/api'], function () use ($router){
     $router->group(['middleware' => ['auth']], function () use ($router){
         $router->post('/check', 'AuthController@check');
         $router->post('/logout', 'AuthController@logout');
-        
+        $router->get('/users/r1/{search}', 'UserController@searchR1');
+        $router->get('/users/r2/{search}', 'UserController@searchR2');
+        $router->get('/users/r3/{search}', 'UserController@searchR3');
+        $router->get('/users/all/{search}', 'UserController@searchAll');
+
+        //Groups
+        $router->get('/me/groups', 'GroupController@getUserGroups');
+        $router->get('/me/groups/owner', 'GroupController@getUserOwnedGroups');
+        $router->get('/me/groups/member', 'GroupController@getUserMemberGroups');
+
+        $router->post('/me/groups/leave/{id}', 'GroupController@leaveGroup');
+        $router->post('/groups/members/add', 'GroupController@addMembers');
+
+        $router->post('/groups/create', 'GroupController@create');
+        $router->put('/groups/update/{id}', 'GroupController@update');
+        $router->delete('/groups/delete/{id}', 'GroupController@delete');
+
         //Chapters
         $router->post('/chapter/upload', 'ChapterController@upload');
 

@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
     {
         $u = new User(['name'=>'g3ru1a', 'email'=>'test@email.com', 'rank'=>3, 'password'=>app('hash')->make('123456')]);
         $u->save();
-        Group::factory()->count(4)->create();
+        User::factory()->count(50)->create();
         Manga::factory()
             ->count(5)
             ->has(MangaGenre::factory()->count(3), 'genres')

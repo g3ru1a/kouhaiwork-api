@@ -11,5 +11,13 @@ class Group extends Model
 
     public function mangas(){
         return $this->belongsToMany(Manga::class);
-    } 
+    }
+
+    public function members(){
+        return $this->belongsToMany(User::class);
+    }
+
+    public function owner() {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
 }

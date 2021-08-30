@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Group;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GroupFactory extends Factory
@@ -12,7 +13,10 @@ class GroupFactory extends Factory
     public function definition(): array
     {
     	return [
-    	    'name' => $this->faker->sentence
+    	    'name' => $this->faker->sentence,
+            'owner_id' => function () {
+                return User::first()->id;
+            },
     	];
     }
 }
