@@ -19,6 +19,7 @@ class CreateChaptersTable extends Migration
             $table->float('number');
             $table->string('name')->nullable();
             $table->integer('manga_id');
+            $table->integer('group_id')->nullable();
             $table->timestamps();
         });
     }

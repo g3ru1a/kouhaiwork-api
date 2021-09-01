@@ -33,6 +33,34 @@ class GroupController extends Controller
         return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
     }
 
+    public function getUserGroupMembers($groupID) {
+        $group = Group::with('members')->find($groupID);
+        if(!$group || $group->owner_id != Auth::user()->id) {
+            return response()->json(['message' => 'Group not found.'], 422);
+        }
+        return $group;
+    }
+
+    public function kickMemberFromGroup(Request $request){
+        $this->validate($request, [
+            'groupID' => 'required',
+            'memberID' => 'required'
+        ]);
+        $member = User::find($request->memberID);
+        if(!$member) return response()->json(['message' => 'Member not found.'], 422);
+
+        $group = Group::find($request->groupID);
+        if (!$group) return response()->json(['message' => 'Group not found.'], 422);
+
+        if($group->owner_id == Auth::user()->id){
+            if($group->members()->detach($member)){
+                return response()->json(['message' => 'Member kicked successfully.']);
+            }else {
+                return response()->json(['message' => 'Could not kick member.'], 422);
+            }
+        }else return response()->json(['message' => 'You are not group owner+.'], 422);
+    }
+
     public function leaveGroup($id) {
         try {
             if (Auth::user()->memberInGroups()->detach($id)) {

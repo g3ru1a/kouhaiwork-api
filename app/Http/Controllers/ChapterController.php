@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chapter;
+use App\Models\Group;
 use App\Models\Manga;
 use App\Models\Page;
 use Illuminate\Validation\Rule;
@@ -20,6 +21,7 @@ class ChapterController extends Controller
                     return $query->where('manga_id', $request->manga_id);
                 })],
                 'chapter_name' => 'string',
+                'group_id' => 'string',
                 'order' => 'required|json',
                 'pages' => 'required',
                 'pages.*' => 'image'
@@ -45,6 +47,14 @@ class ChapterController extends Controller
                 $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/'.$manga->title.'/'.$chapter->number, $next_id !== null ? false : true);
                 $chapter->pages()->save($page);
                 $next_id = $page->id;
+            }
+        }
+        //Get group if provided
+        if ($request->group_id) {
+            $group = Group::find($request->group_id);
+            if($group){
+                $group->chapters()->save($chapter);
+                $chapter->refresh();
             }
         }
         return response()->json(['chapter' => $chapter]);

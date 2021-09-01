@@ -15,4 +15,8 @@ class Chapter extends Model
     public function pages(){
         return $this->hasMany(Page::class)->orderBy('next_id', 'desc');
     }
+
+    public function group(){
+        return $this->belongsTo(Group::class);
+    }
 }

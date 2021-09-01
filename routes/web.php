@@ -52,7 +52,9 @@ $router->group(['prefix' => '/api'], function () use ($router){
         $router->get('/me/groups', 'GroupController@getUserGroups');
         $router->get('/me/groups/owner', 'GroupController@getUserOwnedGroups');
         $router->get('/me/groups/member', 'GroupController@getUserMemberGroups');
+        $router->get('/me/group/members/{groupID}', 'GroupController@getUserGroupMembers');
 
+        $router->post('/me/groups/kick/', 'GroupController@kickMemberFromGroup');
         $router->post('/me/groups/leave/{id}', 'GroupController@leaveGroup');
         $router->post('/groups/members/add', 'GroupController@addMembers');
 
