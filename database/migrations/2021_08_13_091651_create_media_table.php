@@ -20,6 +20,7 @@ class CreateMediaTable extends Migration
             $table->integer('imageable_id');
             $table->string('imageable_type');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -39,6 +39,10 @@ $router->group(['prefix' => '/api'], function () use ($router){
     $router->get('/manga/themes', 'MangaThemeController@index');
     //MangaDemographic
     $router->get('/manga/demographic', 'MangaDemographicController@index');
+    //MangaAuthor
+    $router->get('/manga/authors', 'AuthorController@index');
+    //MangaArtists
+    $router->get('/manga/artists', 'ArtistController@index');
 
     $router->group(['middleware' => ['auth']], function () use ($router){
         $router->post('/check', 'AuthController@check');

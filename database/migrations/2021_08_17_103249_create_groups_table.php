@@ -18,6 +18,7 @@ class CreateGroupsTable extends Migration
             $table->string('name');
             $table->integer('owner_id');
             $table->timestamps();
+            $table->softDeletes();
         });
         Schema::create('group_user', function (Blueprint $table) {
             $table->id();

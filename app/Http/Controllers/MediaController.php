@@ -23,7 +23,7 @@ class MediaController extends Controller
     public static function upload(Request $request, $field, $folder){
         $path = $request->file($field)->store($folder, 's3');
         Storage::disk('s3')->setVisibility($path, 'public');
-        $media = Media::create([
+        $media = new Media([
             'filename' => basename($path),
             'url' => Storage::disk('s3')->url($path)
         ]);

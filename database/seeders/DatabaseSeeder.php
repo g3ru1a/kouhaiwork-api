@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         $u->save();
         User::factory()->count(50)->create();
         Manga::factory()
-            ->count(5)
+            ->count(20)
             ->has(MangaGenre::factory()->count(3), 'genres')
             ->has(MangaTheme::factory()->count(3), 'themes')
             ->has(MangaDemographic::factory()->count(3), 'demographics')

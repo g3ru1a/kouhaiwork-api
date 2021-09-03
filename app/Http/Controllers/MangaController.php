@@ -43,25 +43,25 @@ class MangaController extends Controller
         $this->validate($request, [
             'title' => 'required|string',
             'synopsis' => 'required|string',
-            'alternative_titles' => 'required|string',
+            'alternative_titles' => 'string',
             'status' => 'required|string',
             'origin' => 'required|string',
             'cover' => 'required|image'
         ]);
         try {
-            $post = new Manga();
-            $post->title = $request->title;
-            $post->synopsis = $request->synopsis;
-            $post->alternative_titles = $request->alternative_titles;
-            $post->status = $request->status;
-            $post->origin = $request->origin;
-            if($post->save()){
+            $manga = new Manga();
+            $manga->title = $request->title;
+            $manga->synopsis = $request->synopsis;
+            $manga->alternative_titles = $request->alternative_titles;
+            $manga->status = $request->status;
+            $manga->origin = $request->origin;
+            if($manga->save()){
                 $cover = MediaController::upload($request, 'cover', 'covers');
-                $post->cover()->save($cover);
+                $manga->cover()->save($cover);
                 return response()->json(['status' => 'success', 'message' => 'Manga Created Successfully.']);
             }
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
         }
     }
 
@@ -70,6 +70,13 @@ class MangaController extends Controller
     }
 
     public function delete(Request $request, $id){
-        
+        $manga = Manga::find($id);
+        if(!$manga) return response()->json(['status' => 'error', 'message' => 'Could not find manga with id.'], 422);
+        try {
+            $manga->delete();
+            return response()->json(['status' => 'success', 'message' => 'Manga Deleted Successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
+        }
     }
 }

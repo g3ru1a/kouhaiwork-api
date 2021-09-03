@@ -21,6 +21,7 @@ class CreateMangasTable extends Migration
             $table->tinyText('status');
             $table->string('origin')->default('jp');
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('manga_manga_genre', function (Blueprint $table) {
