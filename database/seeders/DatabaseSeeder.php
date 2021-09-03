@@ -10,6 +10,7 @@ use App\Models\MangaDemographic;
 use App\Models\MangaGenre;
 use App\Models\MangaTheme;
 use App\Models\Media;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -35,5 +36,6 @@ class DatabaseSeeder extends Seeder
             ->has(Artist::factory()->count(1), 'artists')
             ->has(Media::factory(), 'cover')
             ->create();
+        Post::factory()->count(10)->create();
     }
 }

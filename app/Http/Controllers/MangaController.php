@@ -17,7 +17,7 @@ class MangaController extends Controller
     }
 
     public function week(){
-        return Manga::with($this->manga_opt)->where('id', '<', '3')->get();
+        return Manga::with($this->manga_opt)->where('id', '<', '5')->get();
     }
 
     public function latest(){

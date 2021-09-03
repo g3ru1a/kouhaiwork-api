@@ -8,19 +8,23 @@ use App\Models\Post;
 class PostController extends Controller
 {
     public function index(){
-        return Post::all();
+        return Post::orderBy('updated_at', 'desc')->take(10)->get();
     }
 
     public function store(Request $request){
+        $this->validate($request, [
+            'title' => 'required|string',
+            'body' => 'required|string',
+        ]);
         try {
             $post = new Post();
             $post->title = $request->title;
             $post->body = $request->body;
             if($post->save()){
-                return response()->json(['status' => 'success', 'message' => 'Post Created Successfully.']);
+                return $post;
             }
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
         }
     }
 
@@ -37,7 +41,7 @@ class PostController extends Controller
         }
     }
 
-    public function destroy(Request $request, $id){
+    public function delete(Request $request, $id){
         try {
             $post = Post::findOrFail($id);
             if($post->delete()){

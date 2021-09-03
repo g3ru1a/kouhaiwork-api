@@ -22,6 +22,8 @@ $router->group(['prefix' => '/api'], function () use ($router){
     $router->post('/login', 'AuthController@login');
     $router->post('/register', 'AuthController@register');
 
+    $router->get('/announcements', 'PostController@index');
+
     //Manga
     $router->get('/mangas', 'MangaController@index');
     $router->get('/mangas/{id}', 'MangaController@get');
@@ -51,6 +53,10 @@ $router->group(['prefix' => '/api'], function () use ($router){
         $router->get('/users/r2/{search}', 'UserController@searchR2');
         $router->get('/users/r3/{search}', 'UserController@searchR3');
         $router->get('/users/all/{search}', 'UserController@searchAll');
+
+
+        $router->post('/announcements', 'PostController@store');
+        $router->delete('/announcements/delete/{id}', 'PostController@delete');
 
         //Groups
         $router->get('/me/groups', 'GroupController@getUserGroups');
