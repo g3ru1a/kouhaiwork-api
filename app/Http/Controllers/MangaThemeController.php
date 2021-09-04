@@ -18,11 +18,11 @@ class MangaThemeController extends Controller
         try {
             $mg = new MangaTheme();
             $mg->name = $request->name;
-            if($mg->save()){
-                return response()->json(['status'=>'success', 'message'=>'Successfully Created Theme']);
+            if($mg->save()) {
+                return $mg;
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
         
     }
@@ -34,11 +34,11 @@ class MangaThemeController extends Controller
         try {
             $mg = MangaTheme::findOrFail($id);
             $mg->name = $request->name;
-            if($mg->save()){
-                return response()->json(['status'=>'success', 'message'=>'Successfully Updated Theme']);
+            if($mg->save()) {
+                return $mg;
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
     }
 
@@ -49,7 +49,7 @@ class MangaThemeController extends Controller
                 return response()->json(['status'=>'success', 'message'=>'Successfully Deleted Theme']);
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
     }
 }

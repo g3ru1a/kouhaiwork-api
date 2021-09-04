@@ -18,11 +18,11 @@ class MangaDemographicController extends Controller
         try {
             $mg = new MangaDemographic();
             $mg->name = $request->name;
-            if($mg->save()){
-                return response()->json(['status'=>'success', 'message'=>'Successfully Created Demographic']);
+            if($mg->save()) {
+                return $mg;
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
         
     }
@@ -34,11 +34,11 @@ class MangaDemographicController extends Controller
         try {
             $mg = MangaDemographic::findOrFail($id);
             $mg->name = $request->name;
-            if($mg->save()){
-                return response()->json(['status'=>'success', 'message'=>'Successfully Updated Demographic']);
+            if($mg->save()) {
+                return $mg;
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
     }
 
@@ -49,7 +49,7 @@ class MangaDemographicController extends Controller
                 return response()->json(['status'=>'success', 'message'=>'Successfully Deleted Demographic']);
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
     }
 }

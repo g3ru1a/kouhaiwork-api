@@ -18,11 +18,11 @@ class MangaGenreController extends Controller
         try {
             $mg = new MangaGenre();
             $mg->name = $request->name;
-            if($mg->save()){
-                return response()->json(['status'=>'success', 'message'=>'Successfully Created Genre']);
+            if($mg->save()) {
+                return $mg;
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
         
     }
@@ -34,11 +34,11 @@ class MangaGenreController extends Controller
         try {
             $mg = MangaGenre::findOrFail($id);
             $mg->name = $request->name;
-            if($mg->save()){
-                return response()->json(['status'=>'success', 'message'=>'Successfully Updated Genre']);
+            if($mg->save()) {
+                return $mg;
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
     }
 
@@ -49,7 +49,7 @@ class MangaGenreController extends Controller
                 return response()->json(['status'=>'success', 'message'=>'Successfully Deleted Genre']);
             }
         } catch (\Exception $e) {
-            return response()->json(['status'=>'error', 'message'=>$e->getMessage()]);
+            return response()->json(['status'=>'error', 'message'=>$e->getMessage()], 422);
         }
     }
 }

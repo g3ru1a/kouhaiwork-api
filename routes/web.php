@@ -77,7 +77,7 @@ $router->group(['prefix' => '/api'], function () use ($router){
 
         //Manga
         $router->post('/mangas', 'MangaController@store');
-        $router->put('/mangas/{id}', 'MangaController@update');
+        $router->post('/mangas/{id}', 'MangaController@update');
         $router->delete('/mangas/{id}', 'MangaController@delete');
 
         //MangaGenre
@@ -94,5 +94,15 @@ $router->group(['prefix' => '/api'], function () use ($router){
         $router->post('/manga/demographic', 'MangaDemographicController@store');
         $router->put('/manga/demographic/{id}', 'MangaDemographicController@update');
         $router->delete('/manga/demographic/{id}', 'MangaDemographicController@delete');
+
+        //Authors
+        $router->post('/manga/authors', 'AuthorController@store');
+        $router->put('/manga/authors/{id}', 'AuthorController@update');
+        $router->delete('/manga/authors/{id}', 'AuthorController@delete');
+
+        //Artists
+        $router->post('/manga/artists', 'ArtistController@store');
+        $router->put('/manga/artists/{id}', 'ArtistController@update');
+        $router->delete('/manga/artists/{id}', 'ArtistController@delete');
     });
 });
