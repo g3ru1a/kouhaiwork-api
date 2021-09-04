@@ -35,6 +35,7 @@ $router->group(['prefix' => '/api'], function () use ($router){
 
     $router->get('/mangas/{id}/chapters', 'MangaController@chapters');
     $router->get('/chapters/{id}', 'ChapterController@get');
+
     //MangaGenre
     $router->get('/manga/genres', 'MangaGenreController@index');
     //MangaThemes
@@ -73,7 +74,10 @@ $router->group(['prefix' => '/api'], function () use ($router){
         $router->delete('/groups/delete/{id}', 'GroupController@delete');
 
         //Chapters
+        $router->post('/chapters/search/', 'ChapterController@search');
         $router->post('/chapter/upload', 'ChapterController@upload');
+        $router->post('/chapter/update/{id}', 'ChapterController@update');
+        $router->delete('/chapter/delete/{id}', 'ChapterController@delete');
 
         //Manga
         $router->post('/mangas', 'MangaController@store');
