@@ -149,8 +149,11 @@ class ChapterController extends Controller
 
     public function get($id){
         $chapter = Chapter::with('pages')->find($id);
-        $next = Chapter::where('manga_id', $chapter->manga_id)->where('number', '>', $chapter->number)->first();
-        $prev = Chapter::where('manga_id', $chapter->manga_id)->where('number', '<', $chapter->number)->first();
+        $next = Chapter::where('manga_id', $chapter->manga_id)
+            ->where('number', '>', $chapter->number)->orderBy('number', 'asc')->first();
+
+        $prev = Chapter::where('manga_id', $chapter->manga_id)
+            ->where('number', '<', $chapter->number)->orderBy('number', 'desc')->first();
         return response()->json([
             'chapter' => $chapter,
             'next_id' => $next ? $next->id : null,

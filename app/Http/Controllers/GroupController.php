@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use App\Models\User;
+use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -80,17 +81,20 @@ class GroupController extends Controller
         $group = Group::find($request->group_id);
         if($group){
             $users = json_decode($request->users);
+            if(count($users) == 0) return response()->json(['message' => 'No users specified.'], 422);
             foreach ($users as $user) {
                 $u = User::find($user->id);
                 $group->members()->save($u);
             }
             return response()->json(['message' => 'Successfully added to group.']);
-        }else return response()->json(['message' => 'Could not find group.']);
+        }else return response()->json(['message' => 'Could not find group.'], 422);
     }
 
     public function create(Request $request){
         $this->validate($request, [
-            'name' => 'required|string|unique:groups',
+            'name' => [
+                'required', 'string', Rule::unique('groups')->whereNull('deleted_at')
+            ],
         ]);
         $g = new Group();
         $g->name = $request->name;
