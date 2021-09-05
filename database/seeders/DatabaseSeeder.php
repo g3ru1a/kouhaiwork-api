@@ -23,7 +23,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $u = new User(['name'=>'g3ru1a', 'email'=>'test@email.com', 'rank'=>3, 'password'=>app('hash')->make('123456')]);
+        $u = new User([
+            'name' => 'g3ru1a', 
+            'email' => 'test@email.com', 
+            'rank' => 3, 
+            'password' => app('hash')->make('123456'),
+            'verified' => 1,
+            'verify_token' => sha1(time()),
+        ]);
         $u->save();
         return;
         User::factory()->count(50)->create();

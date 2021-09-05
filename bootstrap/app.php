@@ -62,6 +62,14 @@ $app->singleton(
 $app->configure('app');
 $app->configure('auth');
 $app->configure('cors');
+$app->configure('mail');
+
+$app->alias('mail.manager', Illuminate\Mail\MailManager::class);
+$app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
+
+$app->alias('mailer', Illuminate\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +92,8 @@ $app->middleware([
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
+    'rank2' => App\Http\Middleware\Rank2Check::class,
+    'rank3' => App\Http\Middleware\Rank3Check::class,
 ]);
 // $app->routeMiddleware([
 //     'cors' => App\Http\Middleware\CorsMiddleware::class,
@@ -100,12 +110,13 @@ $app->routeMiddleware([
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
+$app->register(Fruitcake\Cors\CorsServiceProvider::class);
+$app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
-$app->register(Fruitcake\Cors\CorsServiceProvider::class);
+$app->register(Illuminate\Mail\MailServiceProvider::class);
 // $app->register(App\Providers\CatchAllOptionsRequestProvider::class);
 
 /*
