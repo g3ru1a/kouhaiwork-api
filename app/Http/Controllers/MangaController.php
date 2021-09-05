@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 class MangaController extends Controller
 {
-    private $manga_opt = ['cover', 'genres', 'themes', 'demographics', 'groups', 'authors', 'artists', 'chapters'];
+    private $manga_opt = ['cover', 'genres', 'themes', 'demographics', 'groups', 'authors', 'artists', 'chapters', 'chapters.group'];
     public function index(){
         return Manga::with($this->manga_opt)->get()->first();
     }
@@ -31,6 +31,15 @@ class MangaController extends Controller
 
     public function get($id) {
         $manga = Manga::with($this->manga_opt)->find($id);
+        $grps = [];
+        foreach ($manga->chapters as $chap) {
+            if($chap->group){
+                if(!in_array($chap->group->name, $grps)){
+                    array_push($grps, $chap->group->name);
+                }
+            }
+        }
+        $manga->groups_arr = $grps;
         return $manga ? $manga : response()->json(['message'=>'Could not find the specified manga in our database.']);
     }
 
