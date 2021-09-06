@@ -43,10 +43,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     public function memberInGroups(){
-        return $this->belongsToMany(Group::class);
+        return $this->belongsToMany(Group::class)->whereNull('deleted_at');
     }
 
     public function ownedGroups() {
-        return $this->hasMany(Group::class, 'owner_id');
+        return $this->hasMany(Group::class, 'owner_id')->whereNull('deleted_at');
     }
 }

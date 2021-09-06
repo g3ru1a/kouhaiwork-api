@@ -22,20 +22,25 @@ class ChapterController extends Controller
         foreach (Auth::user()->ownedGroups as $group) {
             array_push($groups, $group->id);
         }
-        $chaps = Chapter::with('pages', 'manga', 'manga.cover')->withCount('pages')->whereIn('group_id', $groups)
-            ->where('number', 'like', '%' . $s . '%')
-            ->orWhere('name', 'like', '%' . $s . '%')
-            ->orWhere('volume', 'like', '%' . $s . '%')
-            ->orWhereHas('manga', function ($query) use ($s){
-                $query->where('title', 'like', '%' . $s . '%')
-                    ->orWhere('alternative_titles', 'like', '%' . $s . '%');
+        $chaps = Chapter::with('pages', 'manga', 'manga.cover')->withCount('pages')
+            ->where(function($query) use ($s) {
+                $query->where('number', 'like', '%' . $s . '%')
+                ->orWhere('name', 'like', '%' . $s . '%')
+                ->orWhere('volume', 'like', '%' . $s . '%')
+                ->orWhereHas('manga', function ($q) use ($s){
+                    $q->where('title', 'like', '%' . $s . '%')
+                        ->orWhere('alternative_titles', 'like', '%' . $s . '%');
+                });
             })
-            ->get();
+            ->whereIn('group_id', $groups)->get();
         return count($chaps) > 0 ? $chaps : response()->json(['message' => 'Chapter not found'], 422);
     }
 
     public function upload(Request $request){
         //validate input
+        $message = [
+            'pages.max_file_array' => 'Files too big',
+        ];
         $this->validate($request,
             [
                 'manga_id' => 'required|string',
@@ -46,10 +51,10 @@ class ChapterController extends Controller
                 'chapter_name' => 'string',
                 'group_id' => 'string',
                 'order' => 'required|json',
-                'pages' => 'required',
-                'pages.*' => 'image'
-            ]
-        );
+                'pages' => 'required|max_file_array:200000',
+                'pages.*' => 'image|max:10240'
+            ],
+            $message);
         //get manga obj
         $manga = Manga::find($request->manga_id);
         if ($manga == null) return response()->json(['manga_id' => ['The manga id field is required.']], 422);
@@ -97,7 +102,7 @@ class ChapterController extends Controller
                 'chapter_name' => 'string',
                 'group_id' => 'string',
                 'order' => 'json',
-                'pages.*' => 'image'
+                'pages.*' => 'image|max:10240'
             ]
         );
         //get manga obj

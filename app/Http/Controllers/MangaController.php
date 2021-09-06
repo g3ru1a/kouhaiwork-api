@@ -8,6 +8,7 @@ use App\Models\Manga;
 use App\Models\MangaDemographic;
 use App\Models\MangaGenre;
 use App\Models\MangaTheme;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class MangaController extends Controller
@@ -18,15 +19,17 @@ class MangaController extends Controller
     }
 
     public function all(){
-        return Manga::with($this->manga_opt)->get();
+        return Manga::with('cover')->whereHas('chapters')->get();
     }
 
     public function week(){
-        return Manga::with($this->manga_opt)->where('id', '<', '5')->get();
+        return Manga::with('cover', 'chapters')->whereHas('chapters', function($query){
+            $query->whereBetween('updated_at', [Carbon::now()->startOfWeek(Carbon::MONDAY), Carbon::now()->endOfWeek(Carbon::SUNDAY)]);
+        })->get();
     }
 
     public function latest(){
-        return Manga::with($this->manga_opt)->get()->last();
+        return Manga::with($this->manga_opt)->whereHas('chapters')->get()->last();
     }
 
     public function get($id) {
