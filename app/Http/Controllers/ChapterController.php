@@ -38,9 +38,6 @@ class ChapterController extends Controller
 
     public function upload(Request $request){
         //validate input
-        $message = [
-            'pages.max_file_array' => 'Files too big',
-        ];
         $this->validate($request,
             [
                 'manga_id' => 'required|string',
@@ -51,10 +48,9 @@ class ChapterController extends Controller
                 'chapter_name' => 'string',
                 'group_id' => 'string',
                 'order' => 'required|json',
-                'pages' => 'required|max_file_array:200000',
-                'pages.*' => 'image|max:10240'
-            ],
-            $message);
+                'pages' => 'required',
+                'pages.*' => 'max:10240|mimes:jpg,jpeg,png,gif'
+            ]);
         //get manga obj
         $manga = Manga::find($request->manga_id);
         if ($manga == null) return response()->json(['manga_id' => ['The manga id field is required.']], 422);

@@ -88,6 +88,7 @@ $router->group(['prefix' => '/api'], function () use ($router) {
             $router->delete('/announcements/delete/{id}', 'PostController@delete');
 
             //Manga
+            $router->get('/admin/manga/all', 'MangaController@allAdmin');
             $router->post('/mangas', 'MangaController@store');
             $router->post('/mangas/{id}', 'MangaController@update');
             $router->delete('/mangas/{id}', 'MangaController@delete');

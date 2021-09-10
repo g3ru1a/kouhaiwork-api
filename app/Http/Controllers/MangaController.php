@@ -21,6 +21,10 @@ class MangaController extends Controller
     public function all(){
         return Manga::with('cover')->whereHas('chapters')->get();
     }
+    public function allAdmin()
+    {
+        return Manga::with('cover')->whereNull('deleted_at')->get();
+    }
 
     public function week(){
         return Manga::with('cover', 'chapters')->whereHas('chapters', function($query){

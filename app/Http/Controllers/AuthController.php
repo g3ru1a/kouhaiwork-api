@@ -30,11 +30,14 @@ class AuthController extends Controller
     }
 
     public function register(Request $request){
+        $messages = [
+            'password.regex' => 'Password must contain at least 1 uppercase letter and 1 number or special character (@.,!$#%).',
+        ];
         $this->validate($request, [
-            'name' => 'required|string',
+            'name' => 'required|string|unique:users',
             'email' => 'required|email|unique:users',
-            'password' => 'required|confirmed|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[@.,!$#%]).*$/'
-        ]);
+            'password' => 'required|confirmed|min:8|regex:/^.*(?=.{3,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[@.,!$#%]).*$/'
+        ], $messages);
 
         try {
             $user = new User();
@@ -74,11 +77,14 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
+        $messages = [
+            'password.regex' => 'Password must contain at least 1 uppercase letter and 1 number or special character (@.,!$#%).',
+        ];
         $this->validate($request, [
             'user_id' => 'required',
             'token' => 'required|string',
-            'password' => 'required|confirmed|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[@.,!$#%]).*$/'
-        ]);
+            'password' => 'required|confirmed|min:8|regex:/^.*(?=.{3,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[@.,!$#%]).*$/'
+        ], $messages);
         $user = User::find($request->user_id);
         if ($user) {
             if ($user->verify_token == $request->token) {

@@ -8,7 +8,11 @@ use App\Models\Post;
 class PostController extends Controller
 {
     public function index(){
-        return Post::orderBy('updated_at', 'desc')->take(10)->get();
+        $posts = Post::orderBy('updated_at', 'desc')->take(10)->get();
+        foreach ($posts as $post) {
+            $post->body = htmlspecialchars_decode($post->body);
+        }
+        return $posts;
     }
 
     public function store(Request $request){
@@ -19,7 +23,7 @@ class PostController extends Controller
         try {
             $post = new Post();
             $post->title = $request->title;
-            $post->body = $request->body;
+            $post->body = htmlspecialchars($request->body);
             if($post->save()){
                 return $post;
             }
@@ -32,7 +36,7 @@ class PostController extends Controller
         try {
             $post = Post::findOrFail($id);
             $post->title = $request->title;
-            $post->body = $request->body;
+            $post->body = htmlspecialchars($request->body);
             if($post->save()){
                 return response()->json(['status' => 'success', 'message' => 'Post Updated Successfully.']);
             }
