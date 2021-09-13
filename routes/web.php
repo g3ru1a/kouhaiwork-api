@@ -32,7 +32,7 @@ $router->group(['prefix' => '/api'], function () use ($router) {
     //Manga
     $router->get('/mangas', 'MangaController@index');
     $router->get('/mangas/{id}', 'MangaController@get');
-    $router->get('/manga/search/{search}', 'MangaController@search');
+    $router->post('/manga/search', 'MangaController@search');
 
     $router->get('/manga/latest', 'MangaController@latest');
     $router->get('/manga/all', 'MangaController@all');

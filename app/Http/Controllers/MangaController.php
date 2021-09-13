@@ -9,6 +9,7 @@ use App\Models\MangaDemographic;
 use App\Models\MangaGenre;
 use App\Models\MangaTheme;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class MangaController extends Controller
@@ -27,9 +28,14 @@ class MangaController extends Controller
     }
 
     public function week(){
-        return Manga::with('cover', 'chapters')->whereHas('chapters', function($query){
-            $query->whereBetween('updated_at', [Carbon::now()->startOfWeek(Carbon::MONDAY), Carbon::now()->endOfWeek(Carbon::SUNDAY)]);
-        })->get();
+        return Manga::with('cover')->whereHas('chapters')
+        ->with(['chapters' => function ($q) {
+            $q->orderBy('updated_at', 'desc');
+        }])->whereNull('deleted_at')
+        ->take(8)->get();
+        // ->whereHas('chapters', function($query){
+        //     $query->whereBetween('updated_at', [Carbon::now()->startOfWeek(Carbon::MONDAY), Carbon::now()->endOfWeek(Carbon::SUNDAY)]);
+        // })
     }
 
     public function latest(){
@@ -54,12 +60,66 @@ class MangaController extends Controller
         return Manga::with(['chapters.pages'])->findOrFail($id)->chapters;
     }
 
-    public function search($search){
-        $s = str_replace('_', ' ', strtolower($search));
-        $manga = Manga::where('title', 'LIKE', '%' . $s . '%')
-            ->orWhere('alternative_titles', 'LIKE', '%' . $s . '%')
-            ->with('cover', 'genres')
-            ->withCount('chapters')->get();
+    public function search(Request $request){
+        $this->validate($request, [
+            'search' => 'string',
+            'tags' => 'json'
+        ]);
+
+        $manga = Manga::with('cover', 'genres')->whereHas('chapters')->withCount('chapters');
+        $tags = json_decode($request->tags);
+        if(count($tags->genres) > 0){
+            $genres = array_column($tags->genres, 'id');
+        }
+        if (count($tags->themes) > 0) {
+            $themes = array_column($tags->themes, 'id');
+            $manga->with('themes');
+        }
+        if (count($tags->demographics) > 0) {
+            $demographics = array_column($tags->demographics, 'id');
+            $manga->with('demographics');
+        }
+        if ($tags->status) {
+            $status = $tags->status->id == 0 ? 'ongoing' : ($tags->status->id == 1 ? 'finished' : 'axed');
+            $manga->where('status', $status);
+        }
+        $s = strtolower($request->search);
+        if ($s != '') {
+            $manga->where('title', 'LIKE', '%' . $s . '%')
+                ->orWhere('alternative_titles', 'LIKE', '%' . $s . '%');
+        }
+        $manga = $manga->get();
+        $mResults = collect();
+        if(isset($genres)) {
+            foreach($manga as $m){
+                $mg = $m->genres->map(function ($g) { return $g->id; })->toArray();
+                if(count($mg) > 0 && !array_diff($genres, $mg)) {
+                    $mResults = $mResults->push($m);
+                }
+            }
+            $manga = $mResults;
+            $mResults = collect();
+        }
+        if (isset($themes)) {
+            foreach ($manga as $m) {
+                $mt = $m->themes->map(function ($t) { return $t->id; })->toArray();
+                if (count($mt) > 0 && !array_diff($themes, $mt)) {
+                    $mResults = $mResults->push($m);
+                }
+            }
+            $manga = $mResults;
+            $mResults = collect();
+        }
+        if (isset($demographics)) {
+            foreach ($manga as $m) {
+                $md = $m->demographics->map(function ($d) { return $d->id; })->toArray();
+                if (count($md) > 0 && !array_diff($demographics, $md)) {
+                    $mResults = $mResults->push($m);
+                }
+            }
+            $manga = $mResults;
+            $mResults = collect();
+        }
         return count($manga) != 0 ? $manga : response()->json(['message' => 'Could not find the specified manga in our database.']);
     }
 
