@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
             'verify_token' => sha1(time()),
         ]);
         $u->save();
-        return;
+        // return;
         User::factory()->count(50)->create();
         Manga::factory()
             ->count(20)

@@ -84,7 +84,9 @@ class GroupController extends Controller
             if(count($users) == 0) return response()->json(['message' => 'No users specified.'], 422);
             foreach ($users as $user) {
                 $u = User::find($user->id);
-                $group->members()->save($u);
+                if(!$group->members->contains($u)) {
+                    $group->members()->save($u);
+                }
             }
             return response()->json(['message' => 'Successfully added to group.']);
         }else return response()->json(['message' => 'Could not find group.'], 422);
