@@ -36,6 +36,15 @@ class ChapterController extends Controller
         return count($chaps) > 0 ? $chaps : response()->json(['message' => 'Chapter not found'], 422);
     }
 
+    public function getChapter($id){
+        $groups = [];
+        foreach (Auth::user()->ownedGroups as $group) {
+            array_push($groups, $group->id);
+        }
+        $chap = Chapter::with('pages', 'manga', 'manga.cover')->withCount('pages')->find($id);
+        return $chap ? $chap : response()->json(['message' => 'Chapter not found'], 422);
+    }
+
     public function upload(Request $request){
         //validate input
         $this->validate($request,
@@ -128,9 +137,11 @@ class ChapterController extends Controller
         //Get group if provided
         if ($request->group_id) {
             $group = Group::find($request->group_id);
+            // return $request->group_id;
             if ($group) {
                 $chapter->group()->dissociate();
                 $chapter->group()->associate($group);
+                $chapter->save();
                 $chapter->refresh();
             }
         }

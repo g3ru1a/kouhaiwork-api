@@ -74,10 +74,14 @@ $router->group(['prefix' => '/api'], function () use ($router) {
             $router->delete('/groups/delete/{id}', 'GroupController@delete');
 
             //Chapters
+            $router->get('/r2/chapter/{id}', 'ChapterController@getChapter');
             $router->post('/chapters/search/', 'ChapterController@search');
             $router->post('/chapter/upload', 'ChapterController@upload');
             $router->post('/chapter/update/{id}', 'ChapterController@update');
             $router->delete('/chapter/delete/{id}', 'ChapterController@delete');
+
+
+            $router->get('/r2/manga/all', 'MangaController@allR2');
         });
         $router->group(['middleware' => ['rank3']], function () use ($router) {
             $router->get('/users/r3/{search}', 'UserController@searchR3');
@@ -89,6 +93,7 @@ $router->group(['prefix' => '/api'], function () use ($router) {
 
             //Manga
             $router->get('/admin/manga/all', 'MangaController@allAdmin');
+            $router->get('/admin/mangas/{id}', 'MangaController@getAdmin');
             $router->post('/mangas', 'MangaController@store');
             $router->post('/mangas/{id}', 'MangaController@update');
             $router->delete('/mangas/{id}', 'MangaController@delete');
