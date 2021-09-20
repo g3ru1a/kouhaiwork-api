@@ -2,6 +2,8 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use PHPUnit\TextUI\XmlConfiguration\Php;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -14,6 +16,7 @@
 */
 
 $router->get('/', function () use ($router) {
+    return phpinfo();
     return $router->app->version();
 });
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Artist;
 use App\Models\Author;
+use App\Models\Chapter;
 use App\Models\Manga;
 use App\Models\MangaDemographic;
 use App\Models\MangaGenre;
@@ -48,7 +49,9 @@ class MangaController extends Controller
     }
 
     public function latest(){
-        return Manga::with($this->manga_opt)->whereHas('chapters')->get()->last();
+        $lc = Chapter::whereNull('deleted_at')->orderBy('updated_at', 'desc')->get()->first();
+        return Manga::with($this->manga_opt)->whereHas('chapters')->whereNull('deleted_at')
+            ->find($lc->manga_id);
     }
 
     public function get($id) {
@@ -264,6 +267,8 @@ class MangaController extends Controller
         $manga = Manga::find($id);
         if(!$manga) return response()->json(['status' => 'error', 'message' => 'Could not find manga with id.'], 422);
         try {
+            // return str_replace('https://s3.eu-west-1.amazonaws.com', '', $manga->cover->url);
+            // return $manga->cover->url;
             $manga->delete();
             return response()->json(['status' => 'success', 'message' => 'Manga Deleted Successfully.']);
         } catch (\Exception $e) {

@@ -72,25 +72,31 @@ class ChapterController extends Controller
         $manga->chapters()->save($chapter);
         //add pages
         //return chapter obj
-        $pages = $request->file('pages');
-        $order = json_decode($request->order);
-        if($request->hasFile('pages')){
-            $next_id = null;
-            for ($i=count($order)-1; $i >= 0; $i--) {
-                $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/'.$manga->title.'/'.$chapter->number, $next_id !== null ? false : true);
-                $chapter->pages()->save($page);
-                $next_id = $page->id;
+        try {
+            $pages = $request->file('pages');
+            $order = json_decode($request->order);
+            if ($request->hasFile('pages')) {
+                $next_id = null;
+                $seriesName = substr($manga->title, 0, 60);
+                for ($i = count($order) - 1; $i >= 0; $i--) {
+                    $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/' . $seriesName . '/' . $chapter->number, $next_id !== null ? false : true);
+                    $chapter->pages()->save($page);
+                    $next_id = $page->id;
+                }
             }
-        }
-        //Get group if provided
-        if ($request->group_id) {
-            $group = Group::find($request->group_id);
-            if($group){
-                $group->chapters()->save($chapter);
-                $chapter->refresh();
+            //Get group if provided
+            if ($request->group_id) {
+                $group = Group::find($request->group_id);
+                if ($group) {
+                    $group->chapters()->save($chapter);
+                    $chapter->refresh();
+                }
             }
+            return response()->json(['chapter' => $chapter]);
+        } catch (\Throwable $th) {
+            $chapter->delete();
+            return response()->json(['pages' => 'Something went wrong while uploading pages.'], 422);
         }
-        return response()->json(['chapter' => $chapter]);
     }
 
     public function update(Request $request, $id)
@@ -160,7 +166,7 @@ class ChapterController extends Controller
     }
 
     public function get($id){
-        $chapter = Chapter::with('pages')->find($id);
+        $chapter = Chapter::with('pages','manga', 'manga.cover')->find($id);
         $next = Chapter::where('manga_id', $chapter->manga_id)
             ->where('number', '>', $chapter->number)->orderBy('number', 'asc')->first();
 

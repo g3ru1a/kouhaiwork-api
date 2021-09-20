@@ -16,6 +16,16 @@ class Manga extends Model
 
     protected $guarded = [];
 
+    // protected static function booted()
+    // {
+    //     static::deleting(function ($manga) {
+    //         foreach ($manga->chapters as $chapter) {
+    //             $chapter->delete();
+    //         }
+    //         $manga->cover->delete();
+    //     });
+    // }
+
     public function cover(){
         return $this->morphOne(Media::class, 'imageable');
     }

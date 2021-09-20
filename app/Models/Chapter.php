@@ -10,6 +10,15 @@ class Chapter extends Model
     use SoftDeletes;
     protected $fillable = ['volume', 'number', 'name'];
 
+    // protected static function booted()
+    // {
+    //     static::deleting(function ($chapter) {
+    //         foreach ($chapter->pages as $page) {
+    //             $page->delete();
+    //         }
+    //     });
+    // }
+
     public function manga(){
         return $this->belongsTo(Manga::class);
     }

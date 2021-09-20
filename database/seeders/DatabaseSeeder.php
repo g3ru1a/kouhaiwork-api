@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $u = new User([
-            'name' => 'g3ru1a', 
+            'name' => 'test-acc', 
             'email' => 'test@email.com', 
             'rank' => 3, 
             'password' => app('hash')->make('123456'),
@@ -44,6 +44,6 @@ class DatabaseSeeder extends Seeder
             ->has(Artist::factory()->count(1), 'artists')
             ->has(Media::factory(), 'cover')
             ->create();
-        Post::factory()->count(10)->create();
+        // Post::factory()->count(10)->create();
     }
 }
