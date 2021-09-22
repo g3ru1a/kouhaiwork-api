@@ -16,12 +16,12 @@ use PHPUnit\TextUI\XmlConfiguration\Php;
 */
 
 $router->get('/', function () use ($router) {
-    return phpinfo();
+    // return phpinfo();
     return $router->app->version();
 });
 
 
-$router->group(['prefix' => '/api'], function () use ($router) {
+$router->group(['prefix' => '/v2'], function () use ($router) {
     $router->post('/mail/test', 'MailController@test');
 
     $router->post('/login', 'AuthController@login');
@@ -43,6 +43,9 @@ $router->group(['prefix' => '/api'], function () use ($router) {
 
     $router->get('/mangas/{id}/chapters', 'MangaController@chapters');
     $router->get('/chapters/{id}', 'ChapterController@get');
+
+    //Search Params
+    $router->get('/search/parameters', 'MangaOptionsController@searchParams');
 
     //MangaGenre
     $router->get('/manga/genres', 'MangaGenreController@index');

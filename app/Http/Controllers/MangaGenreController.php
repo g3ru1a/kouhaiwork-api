@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GenreResource;
 use App\Models\MangaGenre;
 use Illuminate\Http\Request;
 
 class MangaGenreController extends Controller
 {
     public function index(){
-        return MangaGenre::all();
+        return GenreResource::collection(MangaGenre::all());
     }
 
     public function store(Request $request){

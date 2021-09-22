@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ChapterResource;
 use App\Models\Chapter;
 use App\Models\Group;
 use App\Models\Manga;
@@ -172,10 +173,14 @@ class ChapterController extends Controller
 
         $prev = Chapter::where('manga_id', $chapter->manga_id)
             ->where('number', '<', $chapter->number)->orderBy('number', 'desc')->first();
-        return response()->json([
-            'chapter' => $chapter,
-            'next_id' => $next ? $next->id : null,
-            'prev_id' => $prev ? $prev->id : null,
-        ]);
+        if($chapter){
+
+            return response()->json([
+                'chapter' => ChapterResource::make($chapter),
+                'next_id' => $next ? $next->id : null,
+                'prev_id' => $prev ? $prev->id : null,
+            ]);
+
+        }else return response()->json(['message' => 'Could not find the specified chapter in our database.']);
     }
 }

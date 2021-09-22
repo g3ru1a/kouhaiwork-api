@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MangaAllResource;
+use App\Http\Resources\MangaInfoResource;
+use App\Http\Resources\MangaLatestResource;
+use App\Http\Resources\MangaSearchResource;
+use App\Http\Resources\MangaWeekResource;
 use App\Models\Artist;
 use App\Models\Author;
 use App\Models\Chapter;
@@ -21,7 +26,8 @@ class MangaController extends Controller
     }
 
     public function all(){
-        return Manga::with('cover')->whereHas('chapters')->get();
+        $manga = Manga::with('cover')->whereHas('chapters')->get();
+        return MangaAllResource::collection($manga);
     }
     public function allAdmin()
     {
@@ -38,20 +44,20 @@ class MangaController extends Controller
     }
 
     public function week(){
-        return Manga::with('cover')->whereHas('chapters')
+        $manga = Manga::with('cover')->whereHas('chapters')
         ->with(['chapters' => function ($q) {
             $q->orderBy('updated_at', 'desc');
         }])->whereNull('deleted_at')
         ->take(8)->get();
-        // ->whereHas('chapters', function($query){
-        //     $query->whereBetween('updated_at', [Carbon::now()->startOfWeek(Carbon::MONDAY), Carbon::now()->endOfWeek(Carbon::SUNDAY)]);
-        // })
+        // return $manga;
+        return MangaWeekResource::collection($manga);
     }
 
     public function latest(){
         $lc = Chapter::whereNull('deleted_at')->orderBy('updated_at', 'desc')->get()->first();
-        return Manga::with($this->manga_opt)->whereHas('chapters')->whereNull('deleted_at')
-            ->find($lc->manga_id);
+        $manga = Manga::with($this->manga_opt)->whereHas('chapters')->whereNull('deleted_at')->find($lc->manga_id);
+        // return $manga;
+        return MangaLatestResource::make($manga);
     }
 
     public function get($id) {
@@ -65,7 +71,10 @@ class MangaController extends Controller
             }
         }
         $manga->groups_arr = $grps;
-        return $manga ? $manga : response()->json(['message'=>'Could not find the specified manga in our database.']);
+        if($manga){
+            // return $manga;
+            return MangaInfoResource::make($manga);
+        }else return response()->json(['message'=>'Could not find the specified manga in our database.']);
     }
 
     public function chapters($id) {
@@ -80,20 +89,22 @@ class MangaController extends Controller
 
         $manga = Manga::with('cover', 'genres')->whereHas('chapters')->withCount('chapters');
         $tags = json_decode($request->tags);
-        if(count($tags->genres) > 0){
-            $genres = array_column($tags->genres, 'id');
-        }
-        if (count($tags->themes) > 0) {
-            $themes = array_column($tags->themes, 'id');
-            $manga->with('themes');
-        }
-        if (count($tags->demographics) > 0) {
-            $demographics = array_column($tags->demographics, 'id');
-            $manga->with('demographics');
-        }
-        if ($tags->status) {
-            $status = $tags->status->id == 0 ? 'ongoing' : ($tags->status->id == 1 ? 'finished' : 'axed');
-            $manga->where('status', $status);
+        if($tags){
+            if (count($tags->genres) > 0) {
+                $genres = array_column($tags->genres, 'id');
+            }
+            if (count($tags->themes) > 0) {
+                $themes = array_column($tags->themes, 'id');
+                $manga->with('themes');
+            }
+            if (count($tags->demographics) > 0) {
+                $demographics = array_column($tags->demographics, 'id');
+                $manga->with('demographics');
+            }
+            if ($tags->status) {
+                $status = $tags->status->id == 0 ? 'ongoing' : ($tags->status->id == 1 ? 'finished' : 'axed');
+                $manga->where('status', $status);
+            }
         }
         $s = strtolower($request->search);
         if ($s != '') {
@@ -132,7 +143,9 @@ class MangaController extends Controller
             $manga = $mResults;
             $mResults = collect();
         }
-        return count($manga) != 0 ? $manga : response()->json(['message' => 'Could not find the specified manga in our database.']);
+        if(count($manga) != 0){
+            return MangaSearchResource::collection($manga);
+        }else return response()->json(['message' => 'Could not find the specified manga in our database.']);
     }
 
     public function store(Request $request){
