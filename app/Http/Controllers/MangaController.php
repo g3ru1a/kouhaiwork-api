@@ -15,8 +15,8 @@ use App\Models\MangaDemographic;
 use App\Models\MangaGenre;
 use App\Models\MangaTheme;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MangaController extends Controller
 {
@@ -44,12 +44,11 @@ class MangaController extends Controller
     }
 
     public function week(){
-        $manga = Manga::with('cover')->whereHas('chapters')
-        ->with(['chapters' => function ($q) {
-            $q->orderBy('updated_at', 'desc');
-        }])->whereNull('deleted_at')
-        ->take(8)->get();
-        // return $manga;
+        $chapters = Chapter::with('manga', 'manga.chapters')->groupBy('manga_id')->orderBy('updated_at', 'asc')->take(8)->get();
+        $manga = [];
+        foreach ($chapters as $chap) {
+            array_push($manga, $chap->manga);
+        }
         return MangaWeekResource::collection($manga);
     }
 
