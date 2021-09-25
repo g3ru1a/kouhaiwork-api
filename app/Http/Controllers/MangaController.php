@@ -38,16 +38,31 @@ class MangaController extends Controller
         return Manga::whereNull('deleted_at')->get();
     }
 
+    public function allSince($chapter_id){
+        $ch = Chapter::find($chapter_id);
+        if(!$ch) return response()->json(['message'=>'Chapter not found.'], 422);
+        $chs = Chapter::with('manga')->groupBy('manga_id')->where('created_at', '>=', $ch->updated_at)->get();
+        $manga = [];
+        foreach ($chs as $chap) {
+            if ($chap->manga) {
+                array_push($manga, $chap->manga);
+            }
+        }
+        return MangaWeekResource::collection($manga);
+    }
+
     public function getAdmin($id)
     {
         return Manga::with($this->manga_opt)->find($id);
     }
 
     public function week(){
-        $chapters = Chapter::with('manga', 'manga.chapters')->groupBy('manga_id')->orderBy('updated_at', 'asc')->take(8)->get();
+        $chapters = Chapter::with('manga', 'manga.cover', 'manga.chapters')->groupBy('manga_id')->orderBy('updated_at', 'asc')->take(8)->get();
         $manga = [];
         foreach ($chapters as $chap) {
-            array_push($manga, $chap->manga);
+            if($chap->manga){
+                array_push($manga, $chap->manga);
+            }
         }
         return MangaWeekResource::collection($manga);
     }

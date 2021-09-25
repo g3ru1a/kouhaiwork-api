@@ -88,6 +88,7 @@ $router->group(['prefix' => '/v2'], function () use ($router) {
 
 
             $router->get('/r2/manga/all', 'MangaController@allR2');
+            $router->get('/r2/series/since/{chapter_id}', 'MangaController@allSince');
         });
         $router->group(['middleware' => ['rank3']], function () use ($router) {
             $router->get('/users/r3/{search}', 'UserController@searchR3');

@@ -27,7 +27,7 @@ class MangaInfoResource extends JsonResource
             'demographics' => $this->when(count($this->demographics) > 0, $this->tagToArray($this->demographics)),
             'authors' => $this->when(count($this->authors) > 0, $this->tagToArray($this->authors)),
             'artists' => $this->when(count($this->artists) > 0, $this->tagToArray($this->artists)),
-            'alternative_titles' => $this->when(count($this->alternative_titles) > 0, $this->alternative_titles),
+            'alternative_titles' => $this->when(($this->alternative_titles != null && count($this->alternative_titles) > 0), $this->alternative_titles),
             'chapters' => ChapterInfoResource::collection($this->chapters),
         ];
     }
