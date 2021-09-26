@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ChapterResource;
+use App\Jobs\UploadChapterPagesJob;
 use App\Models\Chapter;
 use App\Models\Group;
 use App\Models\Manga;
 use App\Models\Page;
+use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class ChapterController extends Controller
 {
@@ -23,7 +27,7 @@ class ChapterController extends Controller
         foreach (Auth::user()->ownedGroups as $group) {
             array_push($groups, $group->id);
         }
-        $chaps = Chapter::with('pages', 'manga', 'manga.cover')->withCount('pages')
+        $chaps = Chapter::with('pages', 'manga', 'manga.cover')->withCount('pages')->where('uploaded', true)
             ->where(function($query) use ($s) {
                 $query->where('number', 'like', '%' . $s . '%')
                 ->orWhere('name', 'like', '%' . $s . '%')
@@ -74,16 +78,30 @@ class ChapterController extends Controller
         //add pages
         //return chapter obj
         try {
-            $pages = $request->file('pages');
-            $order = json_decode($request->order);
+            // $pages = $request->file('pages');
+            // $order = json_decode($request->order);
+            // if ($request->hasFile('pages')) {
+            //     $next_id = null;
+            //     $seriesName = substr($manga->title, 0, 60);
+            //     for ($i = count($order) - 1; $i >= 0; $i--) {
+            //         $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/' . $seriesName . '/' . $chapter->number, $next_id !== null ? false : true);
+            //         $chapter->pages()->save($page);
+            //         $next_id = $page->id;
+            //     }
+            // }
             if ($request->hasFile('pages')) {
-                $next_id = null;
                 $seriesName = substr($manga->title, 0, 60);
-                for ($i = count($order) - 1; $i >= 0; $i--) {
-                    $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/' . $seriesName . '/' . $chapter->number, $next_id !== null ? false : true);
-                    $chapter->pages()->save($page);
-                    $next_id = $page->id;
+                $pages_paths = [];
+                foreach ($request->file('pages') as $page) {
+                    $path = $seriesName . '-' . $chapter->number . '/' . $page->getClientOriginalName();
+                    // return response()->json(['e'=> $path], 422);
+                    $upath = Storage::disk('public')->put($path, $page); 
+                    array_push($pages_paths, $upath);
                 }
+
+                // return response()->json(['e' => $pages_paths], 422);
+                $task = (new UploadChapterPagesJob($pages_paths, $request->order, $manga, $chapter))->onQueue('chapters');
+                dispatch($task);
             }
             //Get group if provided
             if ($request->group_id) {
@@ -94,9 +112,10 @@ class ChapterController extends Controller
                 }
             }
             return response()->json(['chapter' => $chapter]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             $chapter->delete();
-            return response()->json(['pages' => 'Something went wrong while uploading pages.'], 422);
+            throw $e;
+            // return response()->json(['pages' => 'Something went wrong while uploading pages.', 'ex' => $e], 422);
         }
     }
 
@@ -129,16 +148,30 @@ class ChapterController extends Controller
         //add pages
         //return chapter obj
         if($request->order){
-            $pages = $request->file('pages');
-            $order = json_decode($request->order);
+            // $pages = $request->file('pages');
+            // $order = json_decode($request->order);
+            // if ($request->hasFile('pages')) {
+            //     $next_id = null;
+            //     for ($i = count($order) - 1; $i >= 0; $i--) {
+            //         $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/' . $manga->title . '/' . $chapter->number, $next_id !== null ? false : true);
+            //         $chapter->pages()->save($page);
+            //         $next_id = $page->id;
+            //     }
+            // }
             if ($request->hasFile('pages')) {
                 $chapter->pages()->delete();
-                $next_id = null;
-                for ($i = count($order) - 1; $i >= 0; $i--) {
-                    $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/' . $manga->title . '/' . $chapter->number, $next_id !== null ? false : true);
-                    $chapter->pages()->save($page);
-                    $next_id = $page->id;
+                $seriesName = substr($manga->title, 0, 60);
+                $pages_paths = [];
+                foreach ($request->file('pages') as $page) {
+                    $path = $seriesName . '-' . $chapter->number . '/' . $page->getClientOriginalName();
+                    // return response()->json(['e'=> $path], 422);
+                    $upath = Storage::disk('public')->put($path, $page);
+                    array_push($pages_paths, $upath);
                 }
+
+                // return response()->json(['e' => $pages_paths], 422);
+                $task = (new UploadChapterPagesJob($pages_paths, $request->order, $manga, $chapter))->onQueue('chapters');
+                dispatch($task);
             }
         }
         //Get group if provided
@@ -167,11 +200,11 @@ class ChapterController extends Controller
     }
 
     public function get($id){
-        $chapter = Chapter::with('pages','manga', 'manga.cover')->find($id);
-        $next = Chapter::where('manga_id', $chapter->manga_id)
+        $chapter = Chapter::with('pages','manga', 'manga.cover')->where('uploaded', true)->find($id);
+        $next = Chapter::where('manga_id', $chapter->manga_id)->where('uploaded', true)
             ->where('number', '>', $chapter->number)->orderBy('number', 'asc')->first();
 
-        $prev = Chapter::where('manga_id', $chapter->manga_id)
+        $prev = Chapter::where('manga_id', $chapter->manga_id)->where('uploaded', true)
             ->where('number', '<', $chapter->number)->orderBy('number', 'desc')->first();
         if($chapter){
 

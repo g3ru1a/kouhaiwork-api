@@ -26,7 +26,9 @@ class MangaController extends Controller
     }
 
     public function all(){
-        $manga = Manga::with('cover')->whereHas('chapters')->get();
+        $manga = Manga::with('cover')->whereHas('chapters', function($query){
+            $query->where('uploaded', true);
+        })->get();
         return MangaAllResource::collection($manga);
     }
     public function allAdmin()
@@ -41,7 +43,7 @@ class MangaController extends Controller
     public function allSince($chapter_id){
         $ch = Chapter::find($chapter_id);
         if(!$ch) return response()->json(['message'=>'Chapter not found.'], 422);
-        $chs = Chapter::with('manga')->groupBy('manga_id')->where('created_at', '>=', $ch->updated_at)->get();
+        $chs = Chapter::with('manga')->groupBy('manga_id')->where('uploaded', true)->where('created_at', '>=', $ch->updated_at)->get();
         $manga = [];
         foreach ($chs as $chap) {
             if ($chap->manga) {
@@ -57,7 +59,7 @@ class MangaController extends Controller
     }
 
     public function week(){
-        $chapters = Chapter::with('manga', 'manga.cover', 'manga.chapters')->groupBy('manga_id')->orderBy('updated_at', 'asc')->take(8)->get();
+        $chapters = Chapter::with('manga', 'manga.cover', 'manga.chapters')->where('uploaded', true)->groupBy('manga_id')->orderBy('updated_at', 'asc')->take(8)->get();
         $manga = [];
         foreach ($chapters as $chap) {
             if($chap->manga){
@@ -68,10 +70,12 @@ class MangaController extends Controller
     }
 
     public function latest(){
-        $lc = Chapter::whereNull('deleted_at')->orderBy('updated_at', 'desc')->get()->first();
-        $manga = Manga::with($this->manga_opt)->whereHas('chapters')->whereNull('deleted_at')->find($lc->manga_id);
-        // return $manga;
-        return MangaLatestResource::make($manga);
+        $lc = Chapter::whereNull('deleted_at')->where('uploaded', true)->orderBy('updated_at', 'desc')->get()->first();
+        if($lc) {
+            $manga = Manga::with($this->manga_opt)->whereHas('chapters')->whereNull('deleted_at')->find($lc->manga_id);
+            // return $manga;
+            return MangaLatestResource::make($manga);
+        }else return response()->json(['error'=>'No chapter found.']);
     }
 
     public function get($id) {

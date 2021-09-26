@@ -41,8 +41,23 @@ class MediaController extends Controller
         return $media;
     }
 
+    public static function uploadFromTemp($file, $folder){
+        // $path = $file->store($folder, 's3');
+        $storagePath = Storage::disk('public')->getDriver()->getAdapter()->getPathPrefix();
+        $filename = basename($file);
+        $path = Storage::disk('s3')->put($folder . '/' . $filename, fopen($storagePath . $file, 'r+'));
+        if($path == 1) $path = $folder . '/' . $filename;
+        Storage::disk('s3')->setVisibility($path, 'public');
+        $media = new Media([
+            'filename' => basename($path),
+            'url' => Storage::disk('s3')->url($path)
+        ]);
+        return $media;
+    }
+
     public static function uploadPage($file, $next_id, $folder, $first = false){
-        $media = MediaController::uploadFromFile($file, $folder);
+        // $media = MediaController::uploadFromFile($file, $folder);
+        $media = MediaController::uploadFromTemp($file, $folder);
         $page = new Page();
         $page->next_id = $next_id;
         $page->first = $first;

@@ -20,6 +20,7 @@ class CreateChaptersTable extends Migration
             $table->string('name')->nullable();
             $table->integer('manga_id');
             $table->integer('group_id')->nullable();
+            $table->boolean('uploaded')->default(false)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
