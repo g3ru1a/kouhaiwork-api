@@ -83,6 +83,7 @@ $router->group(['prefix' => '/v2'], function () use ($router) {
             $router->get('/r2/chapter/{id}', 'ChapterController@getChapter');
             $router->post('/chapters/search/', 'ChapterController@search');
             $router->post('/chapter/upload', 'ChapterController@upload');
+            $router->post('/chapter/upload/pages', 'ChapterController@addPages');
             $router->post('/chapter/update/{id}', 'ChapterController@update');
             $router->delete('/chapter/delete/{id}', 'ChapterController@delete');
 

@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\MediaController;
+use App\Models\Chapter;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class UploadChapterPagesJob extends Job
@@ -31,12 +33,16 @@ class UploadChapterPagesJob extends Job
         try {
             $pages = $this->pages;
             $order = json_decode($this->order);
+            $ch = Chapter::with('pages')->findOrFail($this->chapter->id);
             if ($pages) {
-                $next_id = null;
+                if(count($ch->pages) == 0) $next_id = null;
+                else $next_id = $ch->pages->first()->id;
+                // Log::info($ch->pages->first()->id);
                 $seriesName = substr($this->manga->title, 0, 60);
                 for ($i = count($order) - 1; $i >= 0; $i--) {
-                    $f = Storage::disk('public')->get($pages[$order[$i]]);
-                    $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/' . $seriesName . '/' . $this->chapter->number, $next_id !== null ? false : true);
+                    $ind = $order[$i];
+                    $f = Storage::disk('public')->get($pages[$ind]);
+                    $page = MediaController::uploadPage($pages[$ind], $next_id, 'chapters/' . $seriesName . '/' . $this->chapter->number, $next_id !== null ? false : true);
                     $this->chapter->pages()->save($page);
                     $next_id = $page->id;
                 }

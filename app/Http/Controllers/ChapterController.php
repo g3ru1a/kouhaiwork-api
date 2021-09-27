@@ -61,9 +61,6 @@ class ChapterController extends Controller
                 })],
                 'chapter_name' => 'string',
                 'group_id' => 'string',
-                'order' => 'required|json',
-                'pages' => 'required',
-                'pages.*' => 'max:10240|mimes:jpg,jpeg,png,gif'
             ]);
         //get manga obj
         $manga = Manga::find($request->manga_id);
@@ -78,31 +75,6 @@ class ChapterController extends Controller
         //add pages
         //return chapter obj
         try {
-            // $pages = $request->file('pages');
-            // $order = json_decode($request->order);
-            // if ($request->hasFile('pages')) {
-            //     $next_id = null;
-            //     $seriesName = substr($manga->title, 0, 60);
-            //     for ($i = count($order) - 1; $i >= 0; $i--) {
-            //         $page = MediaController::uploadPage($pages[$order[$i]], $next_id, 'chapters/' . $seriesName . '/' . $chapter->number, $next_id !== null ? false : true);
-            //         $chapter->pages()->save($page);
-            //         $next_id = $page->id;
-            //     }
-            // }
-            if ($request->hasFile('pages')) {
-                $seriesName = substr($manga->title, 0, 60);
-                $pages_paths = [];
-                foreach ($request->file('pages') as $page) {
-                    $path = $seriesName . '-' . $chapter->number . '/' . $page->getClientOriginalName();
-                    // return response()->json(['e'=> $path], 422);
-                    $upath = Storage::disk('public')->put($path, $page); 
-                    array_push($pages_paths, $upath);
-                }
-
-                // return response()->json(['e' => $pages_paths], 422);
-                $task = (new UploadChapterPagesJob($pages_paths, $request->order, $manga, $chapter))->onQueue('chapters');
-                dispatch($task);
-            }
             //Get group if provided
             if ($request->group_id) {
                 $group = Group::find($request->group_id);
@@ -114,6 +86,44 @@ class ChapterController extends Controller
             return response()->json(['chapter' => $chapter]);
         } catch (\Exception $e) {
             $chapter->delete();
+            throw $e;
+            // return response()->json(['pages' => 'Something went wrong while uploading pages.', 'ex' => $e], 422);
+        }
+    }
+
+    public function addPages(Request $request){
+        //validate input
+        $this->validate(
+            $request,
+            [
+                'chapter_id' => 'required|string',
+                'order' => 'required|json',
+                'pages' => 'required',
+                'pages.*' => 'max:10240|mimes:jpg,jpeg,png,gif',
+                'replace' => 'boolean',
+            ]
+        );
+        $chapter = Chapter::find($request->chapter_id);
+        if(!isset($chapter)) return response()->json(['error'=>['message'=>'Could not find chapter.']], 422);
+        $manga = Manga::find($chapter->manga_id);
+        if (!isset($manga)) return response()->json(['error' => ['message' => 'Could not find series.']], 422);
+        try {
+            if ($request->hasFile('pages')) {
+                $seriesName = substr($manga->title, 0, 60);
+                $pages = $request->file('pages');
+                $pages_paths = [];
+                foreach ($pages as $page) {
+                    $path = $seriesName . '-' . $chapter->number . '/' . $page->getClientOriginalName();
+                    // return response()->json(['e'=> $path], 422);
+                    $upath = Storage::disk('public')->put($path, $page);
+                    array_push($pages_paths, $upath);
+                }
+                // return response()->json(['e' => $pages_paths], 422);
+                $task = (new UploadChapterPagesJob($pages_paths, $request->order, $manga, $chapter))->onQueue('chapters');
+                dispatch($task);
+            }
+            return response()->json(['message' => 'Upload Successfull.']);
+        } catch (\Exception $e) {
             throw $e;
             // return response()->json(['pages' => 'Something went wrong while uploading pages.', 'ex' => $e], 422);
         }
