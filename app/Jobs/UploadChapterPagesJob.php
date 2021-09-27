@@ -46,6 +46,9 @@ class UploadChapterPagesJob extends Job
                     $this->chapter->pages()->save($page);
                     $next_id = $page->id;
                 }
+                $storagePath = Storage::disk('public')->getDriver()->getAdapter()->getPathPrefix();
+                Log::info($storagePath . explode('/', $pages[$order[0]])[0]);
+                MediaController::deleteDir($storagePath . explode('/', $pages[$order[0]])[0]);
                 $this->chapter->uploaded = true;
                 $this->chapter->save();
             }
