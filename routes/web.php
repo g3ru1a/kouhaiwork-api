@@ -43,6 +43,7 @@ $router->group(['prefix' => '/v2'], function () use ($router) {
 
     $router->get('/mangas/{id}/chapters', 'MangaController@chapters');
     $router->get('/chapters/{id}', 'ChapterController@get');
+    $router->get('/chapter/check/{id}', 'ChapterController@getCheck');
 
     //Search Params
     $router->get('/search/parameters', 'MangaOptionsController@searchParams');

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class UploadChapterPagesJob extends Job
 {
+    public $tries = 5;
     protected $pages, $order, $manga, $chapter;
     /**
      * Create a new job instance.
@@ -41,7 +42,6 @@ class UploadChapterPagesJob extends Job
                 $seriesName = substr($this->manga->title, 0, 60);
                 for ($i = count($order) - 1; $i >= 0; $i--) {
                     $ind = $order[$i];
-                    $f = Storage::disk('public')->get($pages[$ind]);
                     $page = MediaController::uploadPage($pages[$ind], $next_id, 'chapters/' . $seriesName . '/' . $this->chapter->number, $next_id !== null ? false : true);
                     $this->chapter->pages()->save($page);
                     $next_id = $page->id;

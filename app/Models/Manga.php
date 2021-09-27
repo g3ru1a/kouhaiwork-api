@@ -55,6 +55,6 @@ class Manga extends Model
     }
 
     public function chapters(){
-        return $this->hasMany(Chapter::class)->orderBy('number', 'asc');
+        return $this->hasMany(Chapter::class)->where('uploaded', true)->orderBy('number', 'asc');
     }
 }

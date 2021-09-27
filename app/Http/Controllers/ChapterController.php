@@ -226,4 +226,11 @@ class ChapterController extends Controller
 
         }else return response()->json(['message' => 'Could not find the specified chapter in our database.']);
     }
+
+    public function getCheck($id){
+        $chapter = Chapter::find($id);
+        if($chapter){
+            return response()->json(['uploaded'=>$chapter->uploaded]);
+        } else return response()->json(['message' => 'Could not find the specified chapter in our database.']);
+    }
 }
