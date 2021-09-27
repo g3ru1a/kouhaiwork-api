@@ -16,7 +16,7 @@ use PHPUnit\TextUI\XmlConfiguration\Php;
 */
 
 $router->get('/', function () use ($router) {
-    // return phpinfo();
+    return phpinfo();
     return $router->app->version();
 });
 
