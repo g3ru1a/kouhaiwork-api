@@ -3,7 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\ModelNotFoundException as MNFE;
 use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -19,10 +19,15 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         AuthorizationException::class,
         HttpException::class,
-        ModelNotFoundException::class,
+        MNFE::class,
         ValidationException::class,
     ];
 
+    protected array $exceptionMap = [
+        ModelNotFoundException::class,
+        AuthException::class,
+        ValidationException::class,
+    ];
     /**
      * Report or log an exception.
      *
@@ -49,6 +54,16 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        return parent::render($request, $exception);
+        $exceptionClass = get_class($exception);
+        if(in_array($exceptionClass, $this->exceptionMap)){
+            return parent::render($request, $exception);
+        }else{
+            return response()->json([
+                'error'=>[
+                    'status'=>500,
+                    'message'=> $exception->getMessage(),
+                ]
+            ], 500);
+        }
     }
 }

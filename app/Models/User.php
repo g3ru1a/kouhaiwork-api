@@ -20,7 +20,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-        'name', 'email',
+        'name', 'email', 'password',
+        'verify_token', 'verified'
     ];
 
     /**
@@ -29,8 +30,17 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $hidden = [
-        'password',
+        'password', 'created_at', 'updated_at',
     ];
+
+    /**
+     * Find User Object by Email Column
+     * @param string $email
+     * @return User
+     */
+    public function findByEmail($email){
+        return $this->where('email', $email)->first();
+    }
 
     public function getJWTIdentifier()
     {

@@ -23,6 +23,9 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
+// $app->instance('path.config', app()->basePath() . DIRECTORY_SEPARATOR . 'config');
+$app->instance('path.storage', app()->basePath() . DIRECTORY_SEPARATOR . 'storage');
+
 $app->withFacades();
 
 $app->withEloquent();
@@ -118,6 +121,7 @@ $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(Illuminate\Mail\MailServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
+$app->register(\Anik\Form\FormRequestServiceProvider::class);
 
 // $app->register(App\Providers\CatchAllOptionsRequestProvider::class);
 
@@ -136,6 +140,10 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require __DIR__.'/../routes/web.php';
+    require __DIR__ . '/../routes/public.php';
+    require __DIR__ . '/../routes/users.php';
+    require __DIR__ . '/../routes/groups.php';
+    require __DIR__ . '/../routes/admins.php';
 });
 
 return $app;

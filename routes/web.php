@@ -24,11 +24,11 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => '/v2'], function () use ($router) {
     $router->post('/mail/test', 'MailController@test');
 
-    $router->post('/login', 'AuthController@login');
-    $router->post('/register', 'AuthController@register');
-    $router->post('/verify/{user_id}/{token}', 'AuthController@verifyEmail');
-    $router->post('/password/request/', 'MailController@forgotPasswordRequest');
-    $router->post('/password/reset/', 'AuthController@resetPassword');
+    // $router->post('/login', 'AuthController@login');
+    // $router->post('/register', 'AuthController@register');
+    // $router->post('/verify/{user_id}/{token}', 'AuthController@verifyEmail');
+    // $router->post('/password/request/', 'MailController@forgotPasswordRequest');
+    // $router->post('/password/reset/', 'AuthController@resetPassword');
 
     $router->get('/announcements', 'PostController@index');
 

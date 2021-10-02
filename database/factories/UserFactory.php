@@ -25,7 +25,9 @@ class UserFactory extends Factory
             'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'password' => app('hash')->make('123456'),
-            'rank' => $this->faker->numberBetween(1,3)
+            'rank' => $this->faker->numberBetween(1,3),
+            'verified' => 0,
+            'verify_token' => sha1(time()),
         ];
     }
 }

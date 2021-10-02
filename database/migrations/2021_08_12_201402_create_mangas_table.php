@@ -69,7 +69,7 @@ class CreateMangasTable extends Migration
     public function down()
     {
         Schema::dropIfExists('mangas');
-        Schema::dropIfExists('manga_manga_genres');
+        Schema::dropIfExists('manga_manga_genre');
         Schema::dropIfExists('manga_manga_theme');
         Schema::dropIfExists('manga_manga_demographic');
         Schema::dropIfExists('group_manga');

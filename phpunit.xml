@@ -11,7 +11,8 @@
     </testsuites>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="CACHE_DRIVER" value="array"/>
-        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="DB_DATABASE" value="kouhaiapitest"/>
+        <env name="CACHE_DRIVER" value="file"/>
+        <env name="QUEUE_CONNECTION" value="database"/>
     </php>
 </phpunit>
