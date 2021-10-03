@@ -56,8 +56,8 @@ class AuthTest extends TestCase
 
     public function test_can_register(){
         $formData = [
-            'name' => 'testacc-2',
-            'email' => 'test2@email.com',
+            'name' => 'whacky-acc',
+            'email' => 'whacky@email.com',
             'password' => 'ComplexPassword!1',
             'password_confirmation' => 'ComplexPassword!1',
             'skip_email' => true,
@@ -65,7 +65,7 @@ class AuthTest extends TestCase
         $res = $this->json('POST', '/v' . $this->version . '/auth/register', $formData);
         $this->assertTrue(
             isset($res->response->original['data']['user']) &&
-            $res->response->original['data']['user']->id === 2);
+            $res->response->original['data']['user']->id === 3);
     }
 
     public function test_handle_register_with_wrong_data()

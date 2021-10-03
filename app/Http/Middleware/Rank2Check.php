@@ -16,8 +16,8 @@ class Rank2Check
      */
     public function handle($request, Closure $next)
     {
-        if($request->user()->rank < 2) {
-            return response('Unauthorized.', 401);
+        if(auth()->user()->rank < 2) {
+            return response('Rank Unauthorized.', 401);
         }
 
         $response = $next($request);

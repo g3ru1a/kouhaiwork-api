@@ -9,6 +9,8 @@ class Artist extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['name'];
+
     public function mangas(){
         return $this->belongsToMany(Manga::class);
     } 

@@ -15,8 +15,8 @@ class Rank3Check
      */
     public function handle($request, Closure $next)
     {
-        if ($request->user()->rank < 3) {
-            return response('Unauthorized.', 401);
+        if (auth()->user()->rank < 3) {
+            return response('Rank Unauthorized.', 401);
         }
 
         $response = $next($request);

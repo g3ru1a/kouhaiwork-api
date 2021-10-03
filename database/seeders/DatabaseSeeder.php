@@ -32,6 +32,20 @@ class DatabaseSeeder extends Seeder
             'verify_token' => sha1(time()),
         ]);
         $u->save();
+        $u = new User([
+            'name' => 'test-acc-pleb',
+            'email' => 'test-weak@email.com',
+            'rank' => 1,
+            'password' => app('hash')->make('123456'),
+            'verified' => 1,
+            'verify_token' => '',
+        ]);
+        $u->save();
+        Artist::factory()->count(3)->create();
+        Author::factory()->count(3)->create();
+        MangaDemographic::factory()->count(3)->create();
+        MangaTheme::factory()->count(3)->create();
+        MangaGenre::factory()->count(3)->create();
         // return;
         // User::factory()->count(50)->create();
         // Manga::factory()
