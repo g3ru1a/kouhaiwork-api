@@ -66,6 +66,7 @@ $app->configure('app');
 $app->configure('auth');
 $app->configure('cors');
 $app->configure('mail');
+$app->configure('redis');
 
 $app->alias('mail.manager', Illuminate\Mail\MailManager::class);
 $app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
@@ -122,6 +123,7 @@ $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(Illuminate\Mail\MailServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(\Anik\Form\FormRequestServiceProvider::class);
+$app->register(Illuminate\Redis\RedisServiceProvider::class);
 
 // $app->register(App\Providers\CatchAllOptionsRequestProvider::class);
 

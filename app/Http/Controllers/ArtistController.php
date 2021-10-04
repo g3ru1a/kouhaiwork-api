@@ -7,12 +7,21 @@ use App\Http\Requests\ArtistRequest;
 use App\Http\Resources\ArtistResource;
 use App\Models\Artist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ArtistController extends Controller
 {
     public function index()
     {
-        return ArtistResource::collection(Artist::all());
+        $key = 'manga-artists';
+        if(Cache::has($key)){
+            return response()->json(json_decode(Cache::get($key)));
+        }else {
+            $data = Artist::all();
+            $col = ArtistResource::collection($data);
+            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
+            return $col;
+        }
     }
 
     public function store(ArtistRequest $request)

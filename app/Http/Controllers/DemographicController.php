@@ -7,11 +7,20 @@ use App\Http\Requests\DemographicRequest;
 use App\Http\Resources\DemographicResource;
 use App\Models\MangaDemographic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class DemographicController extends Controller
 {
     public function index(){
-        return DemographicResource::collection(MangaDemographic::all());
+        $key = 'manga-demographics';
+        if (Cache::has($key)) {
+            return response()->json(json_decode(Cache::get($key)));
+        } else {
+            $data = MangaDemographic::all();
+            $col = DemographicResource::collection($data);
+            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
+            return $col;
+        }
     }
 
     public function store(DemographicRequest $request){

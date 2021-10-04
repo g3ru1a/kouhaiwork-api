@@ -18,33 +18,34 @@ class GroupController extends Controller
         return count($group) != 0 ? $group : response()->json(['message' => 'Could not find the specified group in our database.']);
     }
 
-    public function getUserGroups(){
+    public function index(){
         $group = Auth::user()->ownedGroups->concat(Auth::user()->memberInGroups);
         $group = $group->unique('id');
         return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
     }
-    public function getUserOwnedGroups()
+
+    public function getWhere($position)
     {
-        $group = Auth::user()->ownedGroups;
-        return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
-    }
-    public function getUserMemberGroups()
-    {
-        $group = Auth::user()->memberInGroups;
-        return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
+        if($position === 'owner'){
+            $group = Auth::user()->ownedGroups;
+            return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
+        }
+        if($position === 'member'){
+            $group = Auth::user()->memberInGroups;
+            return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
+        }
     }
 
-    public function getUserGroupMembers($groupID) {
-        $group = Group::with('members')->find($groupID);
+    public function getMembers($id) {
+        $group = Group::with('members')->find($id);
         if(!$group || $group->owner_id != Auth::user()->id) {
             return response()->json(['message' => 'Group not found.'], 422);
         }
         return $group;
     }
 
-    public function kickMemberFromGroup(Request $request){
+    public function kickMember(Request $request, $id){
         $this->validate($request, [
-            'groupID' => 'required',
             'memberID' => 'required'
         ]);
         $member = User::find($request->memberID);
@@ -72,9 +73,8 @@ class GroupController extends Controller
         }
     }
 
-    public function addMembers(Request $request) {
+    public function addMembers(Request $request, $id) {
         $this->validate($request, [
-            'group_id' => 'required',
             'users' => 'required',
         ]);
 
@@ -92,7 +92,7 @@ class GroupController extends Controller
         }else return response()->json(['message' => 'Could not find group.'], 422);
     }
 
-    public function create(Request $request){
+    public function store(Request $request){
         $this->validate($request, [
             'name' => [
                 'required', 'string', Rule::unique('groups')->whereNull('deleted_at')

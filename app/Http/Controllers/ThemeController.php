@@ -7,11 +7,20 @@ use App\Http\Requests\ThemeRequest;
 use App\Http\Resources\ThemeResource;
 use App\Models\MangaTheme;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ThemeController extends Controller
 {
     public function index(){
-        return ThemeResource::collection(MangaTheme::all());
+        $key = 'manga-themes';
+        if (Cache::has($key)) {
+            return response()->json(json_decode(Cache::get($key)));
+        } else {
+            $data = MangaTheme::all();
+            $col = ThemeResource::collection($data);
+            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
+            return $col;
+        }
     }
 
     public function store(ThemeRequest $request){

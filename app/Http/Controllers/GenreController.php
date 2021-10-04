@@ -7,11 +7,20 @@ use App\Http\Requests\GenreRequest;
 use App\Http\Resources\GenreResource;
 use App\Models\MangaGenre;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class GenreController extends Controller
 {
     public function index(){
-        return GenreResource::collection(MangaGenre::all());
+        $key = 'manga-genres';
+        if (Cache::has($key)) {
+            return response()->json(json_decode(Cache::get($key)));
+        } else {
+            $data = MangaGenre::all();
+            $col = GenreResource::collection($data);
+            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
+            return $col;
+        }
     }
 
     public function store(GenreRequest $request){

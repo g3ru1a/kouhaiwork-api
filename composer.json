@@ -10,9 +10,10 @@
         "flipbox/lumen-generator": "^8.2",
         "fruitcake/laravel-cors": "^2.0",
         "illuminate/mail": "^8.58",
-        "illuminate/redis": "^8.61",
+        "illuminate/redis": "^8.62",
         "laravel/lumen-framework": "^8.0",
         "league/flysystem-aws-s3-v3": "~1.0",
+        "predis/predis": "^1.1",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {

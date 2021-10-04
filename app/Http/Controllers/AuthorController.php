@@ -7,12 +7,21 @@ use App\Http\Requests\AuthorRequest;
 use App\Http\Resources\AuthorResource;
 use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AuthorController extends Controller
 {
     public function index()
     {
-        return AuthorResource::collection(Author::all());
+        $key = 'manga-authors';
+        if (Cache::has($key)) {
+            return response()->json(json_decode(Cache::get($key)));
+        } else {
+            $data = Author::all();
+            $col = AuthorResource::collection($data);
+            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
+            return $col;
+        }
     }
 
     public function store(AuthorRequest $request)
