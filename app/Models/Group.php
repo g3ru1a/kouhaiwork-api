@@ -10,6 +10,8 @@ class Group extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $fillable = ['name', 'owner_id'];
+
     public function mangas(){
         return $this->belongsToMany(Manga::class);
     }

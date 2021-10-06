@@ -22,7 +22,7 @@ $router->group(['prefix' => '/v' . $version . '/groups', 'middleware' => ['auth'
 
         $router->get('/{id}/members', 'GroupController@getMembers');
         $router->post('/{id}/members', 'GroupController@addMembers');
-        $router->post('/{id}/kick', 'GroupController@kickMemberFromGroup');
+        $router->delete('/{id}/members', 'GroupController@kickMembers');
 
         $router->post('/{id}/leave', 'GroupController@leaveGroup');
     });

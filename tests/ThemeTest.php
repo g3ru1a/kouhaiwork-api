@@ -18,31 +18,6 @@ class ThemeTest extends TestCase
         $this->artisan('db:seed');
     }
 
-    private function getAdminHeader(){
-        $formData = [
-            'email' => 'test@email.com',
-            'password' => '123456'
-        ];
-        $res = $this->json('POST', $this->version . '/auth/login', $formData);
-        $token = $res->response->original['data']['access_token'];
-        return [
-            'Authorization' => 'Bearer ' . $token
-        ];
-    }
-
-    private function getUserHeader()
-    {
-        $formData = [
-            'email' => 'test-weak@email.com',
-            'password' => '123456'
-        ];
-        $res = $this->json('POST', $this->version . '/auth/login', $formData);
-        $token = $res->response->original['data']['access_token'];
-        return [
-            'Authorization' => 'Bearer ' . $token
-        ];
-    }
-
     public function test_can_fetch_themes()
     {
         $res = $this->json('GET', $this->version . '/manga/themes');

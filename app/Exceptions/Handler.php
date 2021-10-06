@@ -27,6 +27,7 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         AuthException::class,
         ValidationException::class,
+        InvalidParameterException::class,
     ];
     /**
      * Report or log an exception.

@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $u = new User([
+        $u1 = new User([
             'name' => 'test-acc', 
             'email' => 'test@email.com', 
             'rank' => 3, 
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'verified' => 1,
             'verify_token' => sha1(time()),
         ]);
-        $u->save();
+        $u1->save();
         $u = new User([
             'name' => 'test-acc-pleb',
             'email' => 'test-weak@email.com',
@@ -46,6 +46,18 @@ class DatabaseSeeder extends Seeder
         MangaDemographic::factory()->count(3)->create();
         MangaTheme::factory()->count(3)->create();
         MangaGenre::factory()->count(3)->create();
+        Group::factory()->count(5)->create();
+        $g = Group::find(1);
+        $g->members()->save($u);
+        $group = Group::create([
+            'name' => 'GroupSeed',
+            'owner_id' => 2
+        ]);
+        $group->members()->save($u1);
+        $group = Group::create([
+            'name' => 'GroupSeed',
+            'owner_id' => 2
+        ]);
         // return;
         // User::factory()->count(50)->create();
         // Manga::factory()

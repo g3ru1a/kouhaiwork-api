@@ -2,128 +2,264 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\BadRequestException;
+use App\Exceptions\InvalidParameterException;
+use App\Exceptions\ModelNotFoundException;
+use App\Http\Requests\AddMembersRequest;
+use App\Http\Requests\GroupRequest;
+use App\Http\Requests\KickMemberRequest;
+use App\Http\Resources\GroupMemberResource;
+use App\Http\Resources\GroupResource;
+use App\Http\Resources\ResponseResource;
 use App\Models\Group;
 use App\Models\User;
-use Illuminate\Validation\Rule;
-use Illuminate\Database\Eloquent\Builder;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class GroupController extends Controller
 {
-    public function search($search)
+    public function index()
     {
-        $s = str_replace('_', ' ', strtolower($search));
-        $group = Group::where('name', 'LIKE', '%' . $s . '%')->get();
-        return count($group) != 0 ? $group : response()->json(['message' => 'Could not find the specified group in our database.']);
-    }
-
-    public function index(){
-        $group = Auth::user()->ownedGroups->concat(Auth::user()->memberInGroups);
-        $group = $group->unique('id');
-        return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
+        return GroupService::where('any')->toResource();
     }
 
     public function getWhere($position)
     {
-        if($position === 'owner'){
-            $group = Auth::user()->ownedGroups;
-            return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
-        }
-        if($position === 'member'){
-            $group = Auth::user()->memberInGroups;
-            return count($group) != 0 ? $group : response()->json(['message' => 'User is not part of any groups.']);
-        }
+        return GroupService::where($position)->toResource();
     }
 
     public function getMembers($id) {
-        $group = Group::with('members')->find($id);
-        if(!$group || $group->owner_id != Auth::user()->id) {
-            return response()->json(['message' => 'Group not found.'], 422);
-        }
-        return $group;
+        return GroupService::find($id, true)->members();
     }
 
-    public function kickMember(Request $request, $id){
-        $this->validate($request, [
-            'memberID' => 'required'
-        ]);
-        $member = User::find($request->memberID);
-        if(!$member) return response()->json(['message' => 'Member not found.'], 422);
-
-        $group = Group::find($request->groupID);
-        if (!$group) return response()->json(['message' => 'Group not found.'], 422);
-
-        if($group->owner_id == Auth::user()->id){
-            if($group->members()->detach($member)){
-                return response()->json(['message' => 'Member kicked successfully.']);
-            }else {
-                return response()->json(['message' => 'Could not kick member.'], 422);
-            }
-        }else return response()->json(['message' => 'You are not group owner+.'], 422);
+    public function kickMembers(KickMemberRequest $request, $id){
+        return GroupService::find($id, true)->kick($request->members)->successMessage();
     }
 
     public function leaveGroup($id) {
-        try {
-            if (Auth::user()->memberInGroups()->detach($id)) {
-                return Group::find($id);
-            }
-        } catch (\Throwable $th) {
-            return $th;
-        }
+        return GroupService::find($id)->leave()->groupToResource();
     }
 
-    public function addMembers(Request $request, $id) {
-        $this->validate($request, [
-            'users' => 'required',
-        ]);
-
-        $group = Group::find($request->group_id);
-        if($group){
-            $users = json_decode($request->users);
-            if(count($users) == 0) return response()->json(['message' => 'No users specified.'], 422);
-            foreach ($users as $user) {
-                $u = User::find($user->id);
-                if(!$group->members->contains($u)) {
-                    $group->members()->save($u);
-                }
-            }
-            return response()->json(['message' => 'Successfully added to group.']);
-        }else return response()->json(['message' => 'Could not find group.'], 422);
+    public function addMembers(AddMembersRequest $request, $id) {
+        return GroupService::find($id, true)->add($request->users)->successMessage();
     }
 
-    public function store(Request $request){
-        $this->validate($request, [
-            'name' => [
-                'required', 'string', Rule::unique('groups')->whereNull('deleted_at')
-            ],
-        ]);
-        $g = new Group();
-        $g->name = $request->name;
-        Auth::user()->ownedGroups()->save($g);
-        $g->refresh();
-        return $g;
+    public function store(GroupRequest $request){
+        return GroupService::make($request->name)->groupToResource();
     }
 
-    public function update(Request $request, $id){
-        $g = Group::find($id);
-        if ($g && $g->owner_id == Auth::user()->id) {
-            $this->validate($request, [
-                'name' => 'required|string|unique:groups',
-            ]);
-            $g->name = $request->name;
-            $g->update();
-            return $g;
-        }
-        return response()->json(['error' => '404', 'message' => 'Group not found.']);
+    public function update(GroupRequest $request, $id)
+    {
+        return GroupService::find($id, true)->update($request->name)->groupToResource();
     }
 
     public function delete($id) {
-        $g = Group::find($id);
-        if($g && $g->owner_id == Auth::user()->id){
-            $g->delete();
-            return $g;
+        return GroupService::find($id, true)->delete();
+    }
+}
+
+class GroupService {
+
+    private $groups;
+    
+    public function __construct($groups){
+        $this->groups = $groups;
+    }
+
+    /**
+     * @param int $id Group ID
+     * @param boolean $must_own Auth User must own the group
+     * 
+     * @return GroupManager
+     */
+    public static function find($id, $must_own = false)
+    {
+        $group = Group::with('members')->find($id);
+        throw_if($group === null, new ModelNotFoundException('Group'));
+        throw_if($must_own && $group->owner_id != auth()->user()->id, new InvalidParameterException('group id'));
+        return new GroupManager($group);
+    }
+
+    /**
+     * @param string $name Group Name
+     * 
+     * @return GroupManager
+     */
+    public static function make($name)
+    {
+        $group = Group::create([
+            'name' => $name
+        ]);
+        try {
+            AuthService::user()->ownedGroups()->save($group);
+        } catch (\Exception $e) {
+            $group->forceDelete();
+            throw $e;
         }
-        return response()->json(['error' => '404', 'message' => 'Group not found.']);
+        $group = $group->refresh();
+        return new GroupManager($group);
+    }
+
+    /**
+     * Get Groups where user is in a certain position
+     * 
+     * @param string $position
+     * @return GroupService
+     */
+    public static function where($position){
+        switch ($position) {
+            case 'owner':
+                $groups = Auth::user()->ownedGroups;
+                break;
+            case 'member':
+                $groups = Auth::user()->memberInGroups;
+                break;
+            case 'any':
+                $groups = (auth()->user()->ownedGroups->concat(auth()->user()->memberInGroups))->unique('id');
+                break;
+            default:
+                throw new InvalidParameterException('position');
+        }
+        return new GroupService($groups);
+    }
+
+    public function toResource(){
+        return count($this->groups) != 0 ? GroupResource::collection($this->groups) : ResponseResource::make('User is not part of any groups.');
+    }
+
+}
+
+class GroupManager {
+    private $group;
+
+    /**
+     * @param Group $group
+     */
+    public function __construct($group)
+    {
+        $this->group = $group;
+    }
+
+    /**
+     * Update group name
+     * 
+     * @param string $name
+     * @return GroupManager
+     */
+    public function update($name){
+        try {
+            $this->group->name = $name;
+            $this->group->update();
+            $this->group = $this->group->refresh();
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        return $this;
+    }
+
+    /**
+     * Soft Delete group
+     * 
+     * @return GroupManager
+     */
+    public function delete(){
+        try {
+            $this->group->members()->detach();
+            $this->group->delete();
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        return $this->successMessage();
+    }
+
+    /**
+     * Return Members in JSON response format
+     * 
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function members()
+    {
+        return GroupMemberResource::collection($this->group->members);
+    }
+
+    /**
+     * Add users to group
+     * 
+     * @param string $users User IDs JSON Array
+     * @return GroupManager
+     */
+    public function add($users)
+    {
+        $users = json_decode($users);
+        throw_if(count($users) == 0, new BadRequestException('No users specified.'));
+        foreach ($users as $user_id) {
+            $u = User::find($user_id);
+            if (!$this->group->members->contains($u)) {
+                $this->group->members()->save($u);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Kick users from group
+     * 
+     * @param string $members JSON Aray of Users
+     * @return GroupManager
+     */
+    public function kick($members)
+    {
+
+        $m = json_decode($members);
+        throw_if(count($m) == 0, new BadRequestException('No users specified.'));
+        try {
+            foreach ($m as $member_id) {
+                $mem = User::find($member_id);
+                if ($this->group->members->contains($mem)) {
+                    $this->group->members()->detach($mem);
+                }
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        return $this;
+    }
+
+    /**
+     * Remove Authenticated User from group
+     * 
+     * @return GroupManager
+     */
+    public function leave()
+    {
+        throw_if($this->group->owner_id === AuthService::user()->id, new InvalidParameterException('group id'));
+        throw_if(!$this->group->members->contains(AuthService::user()), new InvalidParameterException('group id'));
+        try {
+            $this->group->members()->detach(AuthService::user());
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        return $this;
+    }
+
+    /**
+     * Return JSON response of successfull update
+     * 
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function successMessage()
+    {
+        return ResponseResource::make('Group [' . $this->group->name . '] updated successfully.');
+    }
+
+    /**
+     * Return Group as JSON resource
+     * 
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function groupToResource()
+    {
+        return GroupResource::make($this->group);
     }
 }
