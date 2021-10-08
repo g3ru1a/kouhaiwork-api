@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class GroupController extends Controller
 {
@@ -34,28 +35,28 @@ class GroupController extends Controller
     }
 
     public function kickMembers(KickMemberRequest $request, $id){
-        return GroupService::find($id, true)->kick($request->members)->successMessage();
+        return GroupService::find($id, true)->kick($request->members)->flushCache()->successMessage();
     }
 
     public function leaveGroup($id) {
-        return GroupService::find($id)->leave()->groupToResource();
+        return GroupService::find($id)->leave()->flushCache()->groupToResource();
     }
 
     public function addMembers(AddMembersRequest $request, $id) {
-        return GroupService::find($id, true)->add($request->users)->successMessage();
+        return GroupService::find($id, true)->add($request->users)->flushCache()->successMessage();
     }
 
     public function store(GroupRequest $request){
-        return GroupService::make($request->name)->groupToResource();
+        return GroupService::make($request->name)->flushCache()->groupToResource();
     }
 
     public function update(GroupRequest $request, $id)
     {
-        return GroupService::find($id, true)->update($request->name)->groupToResource();
+        return GroupService::find($id, true)->update($request->name)->flushCache()->groupToResource();
     }
 
     public function delete($id) {
-        return GroupService::find($id, true)->delete();
+        return GroupService::find($id, true)->delete()->flushCache()->successMessage();
     }
 }
 
@@ -75,10 +76,16 @@ class GroupService {
      */
     public static function find($id, $must_own = false)
     {
-        $group = Group::with('members')->find($id);
+        $cacheTagKey = 'user-' . AuthService::user()->id . '-groups';
+        $cacheGroupKey = 'groups' . '-' . $id;
+        $hasCache = Cache::has($cacheGroupKey);
+        if($hasCache){
+            $group = Cache::get($cacheGroupKey);
+        }else $group = Group::with('members')->find($id);
         throw_if($group === null, new ModelNotFoundException('Group'));
         throw_if($must_own && $group->owner_id != auth()->user()->id, new InvalidParameterException('group id'));
-        return new GroupManager($group);
+        if(!$hasCache) Cache::put($cacheGroupKey, $group);
+        return new GroupManager($group, $cacheTagKey, $cacheGroupKey);
     }
 
     /**
@@ -88,6 +95,7 @@ class GroupService {
      */
     public static function make($name)
     {
+        $cacheTagKey = 'user-' . AuthService::user()->id . '-groups-';
         $group = Group::create([
             'name' => $name
         ]);
@@ -98,7 +106,10 @@ class GroupService {
             throw $e;
         }
         $group = $group->refresh();
-        return new GroupManager($group);
+
+        $cacheGroupKey = 'groups' . '-' . $group->id;
+        Cache::put($cacheGroupKey, $group);
+        return new GroupManager($group, $cacheTagKey, $cacheGroupKey);
     }
 
     /**
@@ -108,6 +119,11 @@ class GroupService {
      * @return GroupService
      */
     public static function where($position){
+
+        $cacheKey = 'user-' . AuthService::user()->id . '-groups-'.$position;
+        if(Cache::has($cacheKey)){
+            return new GroupService(Cache::get($cacheKey));
+        }
         switch ($position) {
             case 'owner':
                 $groups = Auth::user()->ownedGroups;
@@ -121,6 +137,7 @@ class GroupService {
             default:
                 throw new InvalidParameterException('position');
         }
+        Cache::put($cacheKey, $groups);
         return new GroupService($groups);
     }
 
@@ -131,14 +148,24 @@ class GroupService {
 }
 
 class GroupManager {
-    private $group;
+    private $group, $cacheTag, $cacheGroupKey;
 
     /**
      * @param Group $group
      */
-    public function __construct($group)
+    public function __construct($group, $cacheTag, $cacheGroupKey)
     {
         $this->group = $group;
+        $this->cacheTag = $cacheTag;
+        $this->cacheGroupKey = $cacheGroupKey;
+    }
+
+    public function flushCache(){
+        Cache::forget($this->cacheTag . 'any');
+        if($this->group->owner_id === AuthService::user()->id) Cache::forget($this->cacheTag . 'owner');
+        if ($this->group->owner_id !== AuthService::user()->id) Cache::forget($this->cacheTag . 'member');
+        Cache::forget($this->cacheGroupKey);
+        return $this;
     }
 
     /**
@@ -170,7 +197,7 @@ class GroupManager {
         } catch (\Exception $e) {
             throw $e;
         }
-        return $this->successMessage();
+        return $this;
     }
 
     /**
