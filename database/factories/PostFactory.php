@@ -13,7 +13,7 @@ class PostFactory extends Factory
     {
     	return [
     	    'title' => $this->faker->sentence,
-            'body' => json_encode($this->faker->paragraph)
+            'body' => htmlspecialchars($this->faker->randomHtml())
     	];
     }
 }

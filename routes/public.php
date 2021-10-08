@@ -44,5 +44,5 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     /*
     |   ANNOUNCEMENTS ROUTES
     */
-    $router->get('/announcements', 'PostController@index');
+    $router->get('/announcements', 'AnnouncementsController@index');
 });

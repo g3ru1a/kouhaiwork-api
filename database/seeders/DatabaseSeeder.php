@@ -58,6 +58,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'GroupSeed',
             'owner_id' => 2
         ]);
+        Post::factory()->count(3)->create();
         // return;
         // User::factory()->count(50)->create();
         // Manga::factory()
