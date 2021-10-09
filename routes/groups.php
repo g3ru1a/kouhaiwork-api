@@ -28,6 +28,16 @@ $router->group(['prefix' => '/v' . $version . '/groups', 'middleware' => ['auth'
     });
 
     /*
+    |   MANGA ROUTES
+    */
+    $router->group(['prefix' => '/mangas'], function () use ($router) {
+        $router->get('/{id}', 'MangaController@getNotDeletedWithEverything');
+        $router->post('/', 'MangaController@store');
+        $router->post('/{id}', 'MangaController@update'); //PUT doesn't allow image formdata
+        $router->delete('/{id}', 'MangaController@delete');
+    });
+
+    /*
     |   MANGA DATA
     */
     $router->group(['prefix' => '/manga'], function () use ($router) {

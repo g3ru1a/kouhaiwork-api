@@ -17,7 +17,7 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
         $router->post('/verify/{user_id}/{token}', 'AuthController@verifyEmail');
         $router->post('/password/request/', 'AuthController@forgotPasswordRequest');
         $router->post('/password/reset/', 'AuthController@resetPassword');
-        $router->post('/logout', 'AuthController@logout');
+        $router->post('/logout', ['middleware' => 'auth', 'uses' => 'AuthController@logout']);
         $router->post('/check', ['middleware' => 'auth', 'uses' => 'AuthController@check']);
     });
 
@@ -25,12 +25,9 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     |   MANGA ROUTES
     */
     $router->group(['prefix' => '/manga'], function () use ($router) {
-        /** Information */
-        $router->get('/latest', 'MangaController@latest');
-        $router->get('/all', 'MangaController@all');
-        $router->get('/week', 'MangaController@week');
-        $router->post('/search', 'MangaController@search');
-        $router->get('/get/{id}', 'MangaController@get');
+        /** Getters */
+        $router->get('/', 'MangaController@index');
+        $router->get('/get/{id}', 'MangaController@getHasChaptersWithEverything');
 
         /** Option Getters */
         $router->get('/search/parameters', 'MangaOptionsController@searchParams');

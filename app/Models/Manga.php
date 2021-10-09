@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Collection;
 
 class Manga extends Model
 {
@@ -26,6 +27,19 @@ class Manga extends Model
     //     });
     // }
 
+    public static function groups($manga)
+    {
+        $grps = [];
+        foreach ($manga->chapters as $chap) {
+            if ($chap->group) {
+                if (!in_array($chap->group->name, $grps)) {
+                    array_push($grps, $chap->group->name);
+                }
+            }
+        }
+        return $grps;
+    }
+
     public function cover(){
         return $this->morphOne(Media::class, 'imageable');
     }
@@ -40,10 +54,6 @@ class Manga extends Model
 
     public function demographics(){
         return $this->belongsToMany(MangaDemographic::class);
-    }
-
-    public function groups(){
-        return $this->belongsToMany(Group::class);
     }
 
     public function authors(){

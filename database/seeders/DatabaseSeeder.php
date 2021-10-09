@@ -59,6 +59,8 @@ class DatabaseSeeder extends Seeder
             'owner_id' => 2
         ]);
         Post::factory()->count(3)->create();
+        Manga::factory()
+            ->count(5)->create();
         // return;
         // User::factory()->count(50)->create();
         // Manga::factory()
