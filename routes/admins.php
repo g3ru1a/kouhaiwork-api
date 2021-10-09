@@ -16,4 +16,11 @@ $router->group(['prefix' => '/v' . $version . '/admins', 'middleware' => ['auth'
         $router->put('/{id}', 'AnnouncementsController@update');
         $router->delete('/{id}', 'AnnouncementsController@delete');
     });
+
+    /*
+    |   USER ROUTES
+    */
+    $router->group(['prefix' => '/users'], function () use ($router) {
+        $router->get('/search/{search}', 'UserController@searchAll');
+    });
 });

@@ -22,6 +22,14 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     });
 
     /*
+    |   CHAPTER ROUTES
+    */
+    $router->group(['prefix' => '/chapters'], function () use ($router) {
+        $router->get('/manga/{manga_id}', 'ChapterController@getMangaChapters');
+        $router->get('/{id}', 'ChapterController@get');
+    });
+
+    /*
     |   MANGA ROUTES
     */
     $router->group(['prefix' => '/manga'], function () use ($router) {

@@ -11,7 +11,7 @@ class UserController extends Controller
     public function searchAll($search)
     {
         $s = str_replace(' ', '', strtolower($search));
-        $users = User::where('rank', '>=', '1')->where('name', 'LIKE', '%' . $s . '%')->get();
+        $users = User::where('verified', '1')->where('name', 'LIKE', '%' . $s . '%')->get();
         return count($users) != 0 ? $users : response()->json(['message' => 'Could not find the user in our database.']);
     }
 
@@ -19,9 +19,9 @@ class UserController extends Controller
     {
         $s = str_replace(' ', '', strtolower($search));
         if(Auth::user()){
-            $users = User::where('rank', '=', $rank)->where('name', 'LIKE', '%' . $s . '%')->where('id', '!=', Auth::user()->id)->get();
+            $users = User::where('verified', '1')->where('rank', '=', $rank)->where('name', 'LIKE', '%' . $s . '%')->where('id', '!=', Auth::user()->id)->get();
         }else{
-            $users = User::where('rank', '=', $rank)->where('name', 'LIKE', '%' . $s . '%')->get();
+            $users = User::where('verified', '1')->where('rank', '=', $rank)->where('name', 'LIKE', '%' . $s . '%')->get();
         }
         return $users;
     }

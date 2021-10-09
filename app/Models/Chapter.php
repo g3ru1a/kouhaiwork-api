@@ -8,16 +8,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Chapter extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['volume', 'number', 'name'];
 
-    // protected static function booted()
-    // {
-    //     static::deleting(function ($chapter) {
-    //         foreach ($chapter->pages as $page) {
-    //             $page->delete();
-    //         }
-    //     });
-    // }
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($chapter) { // before delete() method call this
+            $chapter->pages()->delete();
+        });
+    }
+
+    protected $fillable = ['volume', 'number', 'name'];
 
     public function manga(){
         return $this->belongsTo(Manga::class);
@@ -27,7 +28,7 @@ class Chapter extends Model
         return $this->hasMany(Page::class)->orderBy('next_id', 'desc');
     }
 
-    public function group(){
-        return $this->belongsTo(Group::class);
+    public function groups(){
+        return $this->belongsToMany(Group::class);
     }
 }

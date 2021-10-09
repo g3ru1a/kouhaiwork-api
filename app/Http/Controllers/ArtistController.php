@@ -11,15 +11,16 @@ use Illuminate\Support\Facades\Cache;
 
 class ArtistController extends Controller
 {
+    private $cacheKey = 'manga-artists';
+
     public function index()
     {
-        $key = 'manga-artists';
-        if(Cache::has($key)){
-            return response()->json(json_decode(Cache::get($key)));
+        if(Cache::has($this->cacheKey)){
+            return response()->json(json_decode(Cache::get($this->cacheKey)));
         }else {
             $data = Artist::all();
             $col = ArtistResource::collection($data);
-            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
+            Cache::put($this->cacheKey, json_encode($col->response()->getData()), 60 * 60 * 24);
             return $col;
         }
     }
@@ -30,6 +31,7 @@ class ArtistController extends Controller
             $artist = Artist::create([
                 'name' => $request->name,
             ]);
+            Cache::forget($this->cacheKey);
             return ArtistResource::make($artist);
         } catch (\Exception $e) {
             throw $e;
@@ -43,6 +45,7 @@ class ArtistController extends Controller
             throw_if($artist === null, new ModelNotFoundException('Artist'));
             $artist->name = $request->name;
             if ($artist->save()) {
+                Cache::forget($this->cacheKey);
                 return ArtistResource::make($artist);
             }
         } catch (\Exception $e) {
@@ -56,6 +59,7 @@ class ArtistController extends Controller
             $artist = Artist::find($id);
             throw_if($artist === null, new ModelNotFoundException('Artist'));
             if ($artist->delete()) {
+                Cache::forget($this->cacheKey);
                 return response()->json(['data' => ['message' => 'Successfully Deleted Artist']]);
             }
         } catch (\Exception $e) {

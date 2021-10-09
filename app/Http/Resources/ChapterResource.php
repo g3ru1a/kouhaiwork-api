@@ -19,10 +19,8 @@ class ChapterResource extends JsonResource
             'number' => $this->number,
             'manga_id' => $this->manga_id,
             'pages' => PageResource::collection($this->pages),
-            'manga' => [
-                'title' => $this->manga->title,
-                'cover' => $this->manga->cover->url,
-            ]
+            'groups' => GroupResource::collection($this->groups),
+            'manga' => MangaResource::make($this->manga)
         ];
     }
 }

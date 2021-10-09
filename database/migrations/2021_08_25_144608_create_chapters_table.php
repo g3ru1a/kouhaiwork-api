@@ -24,6 +24,11 @@ class CreateChaptersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+        Schema::create('chapter_group', function (Blueprint $table) {
+            $table->id();
+            $table->integer('group_id');
+            $table->integer('chapter_id');
+        });
     }
 
     /**
@@ -34,5 +39,6 @@ class CreateChaptersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('chapters');
+        Schema::dropIfExists('chapter_group');
     }
 }
