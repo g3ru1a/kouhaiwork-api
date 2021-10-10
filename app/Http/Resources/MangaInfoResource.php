@@ -21,7 +21,7 @@ class MangaInfoResource extends JsonResource
             'status' => $this->status,
             'origin' => $this->origin,
             'groups_arr' => $this->groups_arr,
-            'cover' => $this->cover ? $this->cover->url : null,
+            'cover' => $this->cover->url,
             'genres' => $this->when(count($this->genres) > 0, $this->tagToArray($this->genres)),
             'themes' => $this->when(count($this->themes) > 0, $this->tagToArray($this->themes)),
             'demographics' => $this->when(count($this->demographics) > 0, $this->tagToArray($this->demographics)),

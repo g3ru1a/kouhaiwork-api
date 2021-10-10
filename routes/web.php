@@ -60,8 +60,8 @@ $router->group(['prefix' => '/v2'], function () use ($router) {
     // $router->get('/manga/artists', 'ArtistController@index');
 
     $router->group(['middleware' => ['auth']], function () use ($router) {
-        // $router->post('/check', 'AuthController@check');
-        // $router->post('/logout', 'AuthController@logout');
+        $router->post('/check', 'AuthController@check');
+        $router->post('/logout', 'AuthController@logout');
         $router->get('/users/r1/{search}', 'UserController@searchR1');
 
         $router->group(['middleware' => ['rank2']], function () use ($router) {
@@ -96,9 +96,9 @@ $router->group(['prefix' => '/v2'], function () use ($router) {
             $router->get('/users/r3/{search}', 'UserController@searchR3');
             $router->get('/users/all/{search}', 'UserController@searchAll');
 
-            // //Announcements
-            // $router->post('/announcements', 'PostController@store');
-            // $router->delete('/announcements/delete/{id}', 'PostController@delete');
+            //Announcements
+            $router->post('/announcements', 'PostController@store');
+            $router->delete('/announcements/delete/{id}', 'PostController@delete');
 
             //Manga
             $router->get('/admin/manga/all', 'MangaController@allAdmin');
