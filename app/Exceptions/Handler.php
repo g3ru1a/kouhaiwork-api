@@ -58,7 +58,8 @@ class Handler extends ExceptionHandler
         $exceptionClass = get_class($exception);
         if(in_array($exceptionClass, $this->exceptionMap)){
             return parent::render($request, $exception);
-        }else{
+        }else {
+            // return parent::render($request, $exception);
             return response()->json([
                 'error'=>[
                     'status'=>500,

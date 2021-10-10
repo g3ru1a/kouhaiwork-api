@@ -35,7 +35,7 @@ class GroupTest extends TestCase
     {
         $res = $this->json('GET', $this->prefix . '/where/owner', [], $this->getAdminHeader());
         $res = $res->response->getData();
-        $this->assertTrue(isset($res->data) && count($res->data) == 5);
+        $this->assertTrue(isset($res->data) && count($res->data) == 5, 'Expected 5, Found:'.count($res->data));
     }
 
     public function test_can_get_groups_where_the_user_is_member()
