@@ -11,15 +11,14 @@ use Illuminate\Support\Facades\Cache;
 
 class GenreController extends Controller
 {
-    private $cacheKey = 'manga-genres';
-
     public function index(){
-        if (Cache::has($this->cacheKey)) {
-            return response()->json(json_decode(Cache::get($this->cacheKey)));
+        $key = 'manga-genres';
+        if (Cache::has($key)) {
+            return response()->json(json_decode(Cache::get($key)));
         } else {
             $data = MangaGenre::all();
             $col = GenreResource::collection($data);
-            Cache::put($this->cacheKey, json_encode($col->response()->getData()), 60 * 60 * 24);
+            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
             return $col;
         }
     }
@@ -29,7 +28,6 @@ class GenreController extends Controller
             $mg = MangaGenre::create([
                 'name' => $request->name
             ]);
-            Cache::forget($this->cacheKey);
             return GenreResource::make($mg);
         } catch (\Exception $e) {
             throw $e;
@@ -42,7 +40,6 @@ class GenreController extends Controller
             throw_if($mg === null, new ModelNotFoundException('Genre'));
             $mg->name = $request->name;
             if($mg->save()) {
-                Cache::forget($this->cacheKey);
                 return GenreResource::make($mg);
             }
         } catch (\Exception $e) {
@@ -54,8 +51,7 @@ class GenreController extends Controller
         try {
             $mg = MangaGenre::find($id);
             throw_if($mg === null, new ModelNotFoundException('Genre'));
-            if($mg->delete()) {
-                Cache::forget($this->cacheKey);
+            if($mg->delete()){
                 return response()->json(['data'=> ['message'=>'Successfully Deleted Genre']]);
             }
         } catch (\Exception $e) {

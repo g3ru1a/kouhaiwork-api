@@ -6,5 +6,3 @@ Homestead.yaml
 .phpunit.result.cache
 .env.dev
 /api.zip
-
-/public/cache

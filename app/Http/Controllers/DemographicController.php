@@ -11,15 +11,14 @@ use Illuminate\Support\Facades\Cache;
 
 class DemographicController extends Controller
 {
-    private $cacheKey = 'manga-demographics';
-    public function index()
-    {
-        if (Cache::has($this->cacheKey)) {
-            return response()->json(json_decode(Cache::get($this->cacheKey)));
+    public function index(){
+        $key = 'manga-demographics';
+        if (Cache::has($key)) {
+            return response()->json(json_decode(Cache::get($key)));
         } else {
             $data = MangaDemographic::all();
             $col = DemographicResource::collection($data);
-            Cache::put($this->cacheKey, json_encode($col->response()->getData()), 60 * 60 * 24);
+            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
             return $col;
         }
     }
@@ -29,7 +28,6 @@ class DemographicController extends Controller
             $md = MangaDemographic::create([
                 'name' => $request->name
             ]);
-            Cache::forget($this->cacheKey);
             return DemographicResource::make($md);
         } catch (\Exception $e) {
             throw $e;
@@ -43,7 +41,6 @@ class DemographicController extends Controller
             throw_if($md === null, new ModelNotFoundException('Demographic'));
             $md->name = $request->name;
             if($md->save()) {
-                Cache::forget($this->cacheKey);
                 return DemographicResource::make($md);
             }
         } catch (\Exception $e) {
@@ -55,8 +52,7 @@ class DemographicController extends Controller
         try {
             $md = MangaDemographic::find($id);
             throw_if($md === null, new ModelNotFoundException('Demographic'));
-            if($md->delete()) {
-                Cache::forget($this->cacheKey);
+            if($md->delete()){
                 return response()->json(['data'=>['message'=>'Successfully Deleted Demographic']]);
             }
         } catch (\Exception $e) {

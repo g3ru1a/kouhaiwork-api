@@ -21,11 +21,6 @@ class MangaController extends Controller
         return MangaService::notDeleted()->withCover()->all()->toResource();
     }
 
-    public function getHasChapterRecent()
-    {
-        return MangaService::hasChapters()->withCover()->take(10)->toCapResource();
-    }
-
     public function getNotDeletedWithEverything($id)
     {
         return MangaService::notDeleted()->withEverything()->find($id)->toResource();
@@ -65,7 +60,28 @@ class MangaController extends Controller
     //     return MangaWeekResource::collection($manga);
     // }
 
-    
+    /**Move to chapter as 'this weeks/latest 8-10 chapters' */
+    // public function week(){
+    //     $chapters = Chapter::with('manga', 'manga.cover', 'manga.chapters')->where('uploaded', true)->groupBy('manga_id')->orderBy('updated_at', 'asc')->take(8)->get();
+    //     $manga = [];
+    //     foreach ($chapters as $chap) {
+    //         if($chap->manga){
+    //             array_push($manga, $chap->manga);
+    //         }
+    //     }
+    //     return MangaWeekResource::collection($manga);
+    // }
+
+    /**Move to chapter logic as 'latest chapter'*/
+    // public function latest(){
+    //     $lc = Chapter::whereNull('deleted_at')->where('uploaded', true)->orderBy('updated_at', 'desc')->get()->first();
+    //     if($lc) {
+    //         $manga = Manga::with($this->manga_opt)->whereHas('chapters')->whereNull('deleted_at')->find($lc->manga_id);
+    //         // return $manga;
+    //         return MangaLatestResource::make($manga);
+    //     }else return response()->json(['error'=>'No chapter found.']);
+    // }
+
     /**Move to chapter logic, obviously... */
     // public function chapters($id) {
     //     return Manga::with(['chapters.pages'])->findOrFail($id)->chapters;

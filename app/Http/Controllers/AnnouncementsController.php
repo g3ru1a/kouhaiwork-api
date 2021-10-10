@@ -8,7 +8,6 @@ use App\Http\Resources\AnnouncementResource;
 use App\Http\Resources\ResponseResource;
 use Illuminate\Http\Request;
 use App\Models\Post;
-use Illuminate\Support\Facades\Http;
 
 class AnnouncementsController extends Controller
 {
@@ -29,7 +28,7 @@ class AnnouncementsController extends Controller
         } catch (\Exception $e) {
             throw $e;
         }
-        Http::post(env("FRONT_CACHE_API").'/flush/announcements');
+
         return AnnouncementResource::make($ann);
     }
 
@@ -45,7 +44,6 @@ class AnnouncementsController extends Controller
         } catch (\Exception $e) {
             throw $e;
         }
-        Http::post(env("FRONT_CACHE_API") . '/flush/announcements');
         return AnnouncementResource::make(Post::find($id));
     }
 
@@ -58,7 +56,6 @@ class AnnouncementsController extends Controller
         } catch (\Exception $e) {
             throw $e;
         }
-        Http::post(env("FRONT_CACHE_API") . '/flush/announcements');
         return ResponseResource::make('Announcement Deleted Successfully.');
     }
 }

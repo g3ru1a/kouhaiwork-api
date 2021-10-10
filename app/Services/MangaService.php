@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Exceptions\ModelNotFoundException;
 use App\Http\Controllers\MediaController;
-use App\Http\Resources\MangaCappedResource;
 use App\Http\Resources\MangaResource;
 use App\Http\Resources\ResponseResource;
 use App\Models\Manga;
@@ -17,7 +16,7 @@ use Illuminate\Database\Eloquent\Collection;
 class MangaService
 {
     private $fullOpt = [
-        'cover', 'genres', 'themes', 'demographics', 'authors', 'artists', 'chapters', 'chapters.groups'
+        'cover', 'genres', 'themes', 'demographics', 'authors', 'artists', 'chapters', 'chapters.group'
     ];
     /** @var Collection $result*/
     private $mangas, $result, $request;
@@ -161,12 +160,6 @@ class MangaService
         return $this;
     }
 
-    public function take($count)
-    {
-        $this->result = $this->mangas->orderBy('updated_at', 'desc')->take($count)->get();
-        return $this;
-    }
-
     public function find($id)
     {
         $this->result = $this->mangas->find($id);
@@ -184,13 +177,5 @@ class MangaService
         if($this->result instanceof Collection){
             return MangaResource::collection($this->result);
         }else return MangaResource::make($this->result);
-    }
-
-    public function toCapResource()
-    {
-        throw_if($this->result === null, new ModelNotFoundException('Series'));
-        if ($this->result instanceof Collection) {
-            return MangaCappedResource::collection($this->result);
-        } else return MangaCappedResource::make($this->result);
     }
 }

@@ -17,19 +17,23 @@ class Manga extends Model
 
     protected $guarded = [];
 
-    protected $hidden = [
-        'created_at', 'updated_at',
-    ];
+    // protected static function booted()
+    // {
+    //     static::deleting(function ($manga) {
+    //         foreach ($manga->chapters as $chapter) {
+    //             $chapter->delete();
+    //         }
+    //         $manga->cover->delete();
+    //     });
+    // }
 
     public static function groups($manga)
     {
         $grps = [];
         foreach ($manga->chapters as $chap) {
-            if ($chap->groups) {
-                foreach ($chap->groups as $g) {
-                    if (!in_array($g->name, $grps)) {
-                        array_push($grps, $g->name);
-                    }
+            if ($chap->group) {
+                if (!in_array($chap->group->name, $grps)) {
+                    array_push($grps, $chap->group->name);
                 }
             }
         }

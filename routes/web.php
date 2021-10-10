@@ -41,9 +41,9 @@ $router->group(['prefix' => '/v2'], function () use ($router) {
     // $router->get('/manga/all', 'MangaController@all');
     // $router->get('/manga/week', 'MangaController@week');
 
-    // $router->get('/mangas/{id}/chapters', 'MangaController@chapters');
-    // $router->get('/chapters/{id}', 'ChapterController@get');
-    /**$router->get('/chapter/check/{id}', 'ChapterController@getCheck');*/
+    $router->get('/mangas/{id}/chapters', 'MangaController@chapters');
+    $router->get('/chapters/{id}', 'ChapterController@get');
+    $router->get('/chapter/check/{id}', 'ChapterController@getCheck');
 
     // //Search Params
     // $router->get('/search/parameters', 'MangaOptionsController@searchParams');
@@ -81,16 +81,16 @@ $router->group(['prefix' => '/v2'], function () use ($router) {
             // $router->delete('/groups/delete/{id}', 'GroupController@delete');
 
             //Chapters
-            // $router->get('/r2/chapter/{id}', 'ChapterController@getChapter');
-            // $router->post('/chapters/search/', 'ChapterController@search');
-            // $router->post('/chapter/upload', 'ChapterController@upload');
-            // $router->post('/chapter/upload/pages', 'ChapterController@addPages');
-            // $router->post('/chapter/update/{id}', 'ChapterController@update');
-            // $router->delete('/chapter/delete/{id}', 'ChapterController@delete');
+            $router->get('/r2/chapter/{id}', 'ChapterController@getChapter');
+            $router->post('/chapters/search/', 'ChapterController@search');
+            $router->post('/chapter/upload', 'ChapterController@upload');
+            $router->post('/chapter/upload/pages', 'ChapterController@addPages');
+            $router->post('/chapter/update/{id}', 'ChapterController@update');
+            $router->delete('/chapter/delete/{id}', 'ChapterController@delete');
 
 
-            // $router->get('/r2/manga/all', 'MangaController@allR2');
-            // $router->get('/r2/series/since/{chapter_id}', 'MangaController@allSince');
+            $router->get('/r2/manga/all', 'MangaController@allR2');
+            $router->get('/r2/series/since/{chapter_id}', 'MangaController@allSince');
         });
         $router->group(['middleware' => ['rank3']], function () use ($router) {
             $router->get('/users/r3/{search}', 'UserController@searchR3');
@@ -101,11 +101,11 @@ $router->group(['prefix' => '/v2'], function () use ($router) {
             // $router->delete('/announcements/delete/{id}', 'PostController@delete');
 
             //Manga
-            // $router->get('/admin/manga/all', 'MangaController@allAdmin');
-            // $router->get('/admin/mangas/{id}', 'MangaController@getAdmin');
-            // $router->post('/mangas', 'MangaController@store');
-            // $router->post('/mangas/{id}', 'MangaController@update');
-            // $router->delete('/mangas/{id}', 'MangaController@delete');
+            $router->get('/admin/manga/all', 'MangaController@allAdmin');
+            $router->get('/admin/mangas/{id}', 'MangaController@getAdmin');
+            $router->post('/mangas', 'MangaController@store');
+            $router->post('/mangas/{id}', 'MangaController@update');
+            $router->delete('/mangas/{id}', 'MangaController@delete');
 
             // //MangaGenre
             // $router->post('/manga/genres', 'MangaGenreController@store');

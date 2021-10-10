@@ -17,7 +17,7 @@ class Group extends Model
     }
 
     public function chapters(){
-        return $this->belongsToMany(Chapter::class);
+        return $this->hasMany(Chapter::class);
     }
 
     public function members(){

@@ -15,21 +15,5 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\ExampleEvent::class => [
             \App\Listeners\ExampleListener::class,
         ],
-        'Illuminate\Cache\Events\KeyForgotten' => [
-            'App\Listeners\CacheEOLListener',
-        ],
-        // \Illuminate\Cache\Events\CacheHit::class => [
-        //     \App\Listeners\CacheEOLListener::class,
-        // ],
     ];
-
-    /**
-     * Determine if events and listeners should be automatically discovered.
-     *
-     * @return bool
-     */
-    public function shouldDiscoverEvents()
-    {
-        return true;
-    }
 }

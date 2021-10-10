@@ -11,16 +11,15 @@ use Illuminate\Support\Facades\Cache;
 
 class AuthorController extends Controller
 {
-    private $cacheKey = 'manga-authors';
-
     public function index()
     {
-        if (Cache::has($this->cacheKey)) {
-            return response()->json(json_decode(Cache::get($this->cacheKey)));
+        $key = 'manga-authors';
+        if (Cache::has($key)) {
+            return response()->json(json_decode(Cache::get($key)));
         } else {
             $data = Author::all();
             $col = AuthorResource::collection($data);
-            Cache::put($this->cacheKey, json_encode($col->response()->getData()), 60 * 60 * 24);
+            Cache::put($key, json_encode($col->response()->getData()), 60 * 60 * 24);
             return $col;
         }
     }
@@ -31,7 +30,6 @@ class AuthorController extends Controller
             $author =Author::create([
                 'name' => $request->name
             ]);
-            Cache::forget($this->cacheKey);
             return AuthorResource::make($author);
         } catch (\Exception $e) {
             throw $e;
@@ -45,7 +43,6 @@ class AuthorController extends Controller
             throw_if($author === null, new ModelNotFoundException('Author'));
             $author->name = $request->name;
             if ($author->save()) {
-                Cache::forget($this->cacheKey);
                 return AuthorResource::make($author);
             }
         } catch (\Exception $e) {
@@ -59,7 +56,6 @@ class AuthorController extends Controller
             $author = Author::find($id);
             throw_if($author === null, new ModelNotFoundException('Author'));
             if ($author->delete()) {
-                Cache::forget($this->cacheKey);
                 return response()->json(['data' => ['message' => 'Successfully Deleted Author']]);
             }
         } catch (\Exception $e) {
