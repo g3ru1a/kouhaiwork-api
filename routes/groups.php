@@ -43,7 +43,7 @@ $router->group(['prefix' => '/v' . $version . '/groups', 'middleware' => ['auth'
         $router->get('/{id}', 'ChapterController@get');
 
         $router->post('/', 'ChapterController@store');
-        $router->post('/pages', 'ChapterController@store');
+        $router->post('/pages', 'ChapterController@addPages');
 
         $router->post('/{id}', 'ChapterController@update');
         $router->delete('/{id}', 'ChapterController@delete');

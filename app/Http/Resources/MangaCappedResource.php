@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Manga;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class MangaResource extends JsonResource
+class MangaCappedResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,7 +21,7 @@ class MangaResource extends JsonResource
             'synopsis' => $this->synopsis,
             'status' => $this->status,
             'origin' => $this->origin,
-            'groups' => $this->getGroups($this),
+            'groups' => Manga::groups($this),
             'cover' => $this->cover ? $this->cover->url : null,
             'genres' => $this->when(count($this->genres) > 0, $this->tagToArray($this->genres)),
             'themes' => $this->when(count($this->themes) > 0, $this->tagToArray($this->themes)),
@@ -29,7 +29,6 @@ class MangaResource extends JsonResource
             'authors' => $this->when(count($this->authors) > 0, $this->tagToArray($this->authors)),
             'artists' => $this->when(count($this->artists) > 0, $this->tagToArray($this->artists)),
             'alternative_titles' => $this->alternative_titles,
-            'chapters' => ChapterInfoResource::collection($this->chapters),
         ];
     }
 
@@ -40,19 +39,5 @@ class MangaResource extends JsonResource
             array_push($ar, $tag->name);
         }
         return $ar;
-    }
-
-    private function getGroups($manga){
-        $grps = [];
-        foreach ($manga->chapters as $chap) {
-            if ($chap->groups) {
-                foreach($chap->groups as $g){
-                    if (!in_array($g->name, $grps)) {
-                        array_push($grps, $g->name);
-                    }
-                }
-            }
-        }
-        return $grps;
     }
 }

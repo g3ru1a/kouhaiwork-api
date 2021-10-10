@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ChapterResource extends JsonResource
+class ChapterNoPagesResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,7 +18,6 @@ class ChapterResource extends JsonResource
             'id' => $this->id,
             'number' => $this->number,
             'manga_id' => $this->manga_id,
-            'pages' => PageResource::collection($this->pages),
             'groups' => GroupResource::collection($this->groups),
             'manga' => MangaCappedResource::make($this->manga)
         ];

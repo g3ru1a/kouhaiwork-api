@@ -31,6 +31,7 @@ class UploadChapterPagesJob extends Job
      */
     public function handle()
     {
+        Log::info('Trying');
         try {
             $pages = $this->pages;
             $order = json_decode($this->order);
@@ -41,6 +42,7 @@ class UploadChapterPagesJob extends Job
                 // Log::info($ch->pages->first()->id);
                 $seriesName = substr($this->manga->title, 0, 60);
                 for ($i = count($order) - 1; $i >= 0; $i--) {
+                    Log::info('Uploading: chapters/' . $seriesName . '/' . $this->chapter->number);
                     $ind = $order[$i];
                     $page = MediaController::uploadPage($pages[$ind], $next_id, 'chapters/' . $seriesName . '/' . $this->chapter->number, $next_id !== null ? false : true);
                     $this->chapter->pages()->save($page);

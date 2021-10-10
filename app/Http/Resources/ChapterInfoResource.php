@@ -19,7 +19,7 @@ class ChapterInfoResource extends JsonResource
             'volume' => $this->when($this->volume != null, $this->volume),
             'number' => $this->number,
             'name' => $this->when($this->name != null, $this->name),
-            // 'group' => $this->group->name,
+            'groups' => GroupResource::collection($this->groups),
             'updated_at' => $this->updated_at,
         ];
     }

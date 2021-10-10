@@ -25,7 +25,7 @@ $app = new Laravel\Lumen\Application(
 
 // $app->instance('path.config', app()->basePath() . DIRECTORY_SEPARATOR . 'config');
 $app->instance('path.storage', app()->basePath() . DIRECTORY_SEPARATOR . 'storage');
-
+$app->instance('path.public', app()->basePath() . DIRECTORY_SEPARATOR . 'public');
 $app->withFacades();
 
 $app->withEloquent();
@@ -117,7 +117,7 @@ $app->routeMiddleware([
 $app->register(Fruitcake\Cors\CorsServiceProvider::class);
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
+$app->register(App\Providers\EventServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(Illuminate\Mail\MailServiceProvider::class);

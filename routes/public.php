@@ -6,8 +6,8 @@ use PHPUnit\TextUI\XmlConfiguration\Php;
 
 $version = env('APP_VERSION', 'nan');
 
+$router->get('/storage/{filename}', 'MediaController@getFile');
 $router->group(['prefix' => '/v' . $version], function () use ($router) {
-
     /*
     |   AUTHENTICATION ROUTES
     */
@@ -26,6 +26,8 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     */
     $router->group(['prefix' => '/chapters'], function () use ($router) {
         $router->get('/manga/{manga_id}', 'ChapterController@getMangaChapters');
+        $router->get('/latest', 'ChapterController@latest');
+        $router->get('/recent', 'ChapterController@recent');
         $router->get('/{id}', 'ChapterController@get');
     });
 
@@ -35,7 +37,10 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     $router->group(['prefix' => '/manga'], function () use ($router) {
         /** Getters */
         $router->get('/', 'MangaController@index');
+        $router->get('/recent', 'MangaController@getHasChapterRecent');
         $router->get('/get/{id}', 'MangaController@getHasChaptersWithEverything');
+
+        $router->post('/search', 'SearchController@searchManga');
 
         /** Option Getters */
         $router->get('/search/parameters', 'MangaOptionsController@searchParams');

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\BadRequestException;
 use App\Exceptions\ModelNotFoundException;
 use App\Http\Requests\ChapterEditRequest;
 use App\Http\Requests\ChapterPageRequest;
 use App\Http\Requests\ChapterRequest;
+use App\Http\Resources\ChapterNoPagesResource;
 use App\Http\Resources\ChapterResource;
 use App\Http\Resources\ResponseResource;
 use App\Jobs\UploadChapterPagesJob;
@@ -15,11 +17,40 @@ use App\Services\ChapterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ChapterController extends Controller
 {
-    
+    public function latest(){
+        $ch = ChapterService::checkCache('latest-chapter');
+        if($ch !== false){
+            return $ch->toNoPageResource();
+        }else{
+            $ch = ChapterService::grab('latest');
+            ChapterService::cache('latest-chapter', $ch);
+            return $ch->toNoPageResource();
+        }
+    }
+
+    public function recent(){
+        $key = 'recent-chapter';
+        $chapters = ChapterService::checkCache($key);
+        if ($chapters !== false) {
+            return ChapterNoPagesResource::collection(ChapterService::toChapterCollection($chapters));
+        } else {
+            $chapters = ChapterService::grab('recent', 8);
+            ChapterService::cache($key, $chapters);
+            return ChapterNoPagesResource::collection(ChapterService::toChapterCollection($chapters));
+        }
+        // if (Cache::has($key)) {
+        //     return ChapterResource::collection(Cache::pull($key));
+        // }
+        // $latestChapter = Chapter::where('uploaded', '1')->orderBy('updated_at', 'desc')->get()->unique('manga_id')->take(10);
+        // Cache::put($key, $latestChapter);
+        // return ChapterResource::collection($latestChapter);
+    }
 
     public function store(ChapterRequest $request){
         return ChapterService::make($request)->attachGroups($request->groups)->toResource();
@@ -47,15 +78,19 @@ class ChapterController extends Controller
                 $pages = $request->file('pages');
                 $pages_paths = [];
                 foreach ($pages as $page) {
+
+                    Log::info('Trying to upload: ' . $page->getClientOriginalName());
                     $path = $seriesName . '-' . $chapter->number . '/' . $page->getClientOriginalName();
                     // return response()->json(['e'=> $path], 422);
                     $upath = Storage::disk('public')->put($path, $page);
                     array_push($pages_paths, $upath);
                 }
+
+                Log::info($pages_paths);
                 // return response()->json(['e' => $pages_paths], 422);
                 $task = (new UploadChapterPagesJob($pages_paths, $request->order, $manga, $chapter))->onQueue('chapters');
                 dispatch($task);
-            }
+            }else throw new BadRequestException('Missing pages.');
             return ResponseResource::make('Upload Dispatched.');
         } catch (\Exception $e) {
             throw $e;
@@ -64,7 +99,7 @@ class ChapterController extends Controller
 
     public function get($id){
         if(Cache::has('chapter-'.$id)){
-            return Cache::get('chapter-'.$id);
+            return Cache::pull('chapter-'.$id);
         }
         $chapter = Chapter::with('pages','manga', 'manga.cover')->where('uploaded', true)->find($id);
         throw_if($chapter === null, new ModelNotFoundException('Chapter'));
