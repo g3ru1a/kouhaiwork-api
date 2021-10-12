@@ -16,15 +16,9 @@ class Manga extends Model
 
     protected $guarded = [];
 
-    // protected static function booted()
-    // {
-    //     static::deleting(function ($manga) {
-    //         foreach ($manga->chapters as $chapter) {
-    //             $chapter->delete();
-    //         }
-    //         $manga->cover->delete();
-    //     });
-    // }
+    protected $fillable = [
+        'title', 'synopsis', 'status', 'origin', 'alternative_title', 'created_by'
+    ];
 
     public function cover(){
         return $this->morphOne(Media::class, 'imageable');
@@ -56,5 +50,9 @@ class Manga extends Model
 
     public function chapters(){
         return $this->hasMany(Chapter::class)->where('uploaded', true)->orderBy('number', 'asc');
+    }
+
+    public function creator(){
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

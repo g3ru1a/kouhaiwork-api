@@ -26,10 +26,11 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     */
     $router->group(['prefix' => '/manga'], function () use ($router) {
         /** Information */
-        $router->get('/latest', 'MangaController@latest');
+        // $router->get('/latest', 'MangaController@latest');
+        // $router->get('/all', 'MangaController@all');
+        // $router->get('/week', 'MangaController@week');
+        $router->post('/search', 'SearchController@search');
         $router->get('/all', 'MangaController@all');
-        $router->get('/week', 'MangaController@week');
-        $router->post('/search', 'MangaController@search');
         $router->get('/get/{id}', 'MangaController@get');
 
         /** Option Getters */

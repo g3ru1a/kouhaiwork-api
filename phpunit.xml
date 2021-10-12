@@ -12,7 +12,7 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="DB_DATABASE" value="kouhaiapitest"/>
-        <env name="CACHE_DRIVER" value="file"/>
+        <env name="CACHE_DRIVER" value="null"/>
         <env name="QUEUE_CONNECTION" value="database"/>
     </php>
 </phpunit>

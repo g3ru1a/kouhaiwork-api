@@ -16,13 +16,13 @@ class ChapterResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'volume' => $this->when($this->volume != null, $this->volume),
             'number' => $this->number,
+            'name' => $this->when($this->name != null, $this->name),
             'manga_id' => $this->manga_id,
+            'groups' => $this->groups ? GroupCompactResource::collection($this->groups) : null,
+            'manga' => MangaCompactResource::make($this->manga),
             'pages' => PageResource::collection($this->pages),
-            'manga' => [
-                'title' => $this->manga->title,
-                'cover' => $this->manga->cover->url,
-            ]
         ];
     }
 }

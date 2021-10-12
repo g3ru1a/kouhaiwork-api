@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ChapterInfoResource extends JsonResource
+class ChapterCompactResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,7 +19,7 @@ class ChapterInfoResource extends JsonResource
             'volume' => $this->when($this->volume != null, $this->volume),
             'number' => $this->number,
             'name' => $this->when($this->name != null, $this->name),
-            'group' => $this->group->name,
+            'groups' => $this->groups ? GroupCompactResource::collection($this->groups) : null,
             'updated_at' => $this->updated_at,
         ];
     }

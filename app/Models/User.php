@@ -52,11 +52,19 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return [];
     }
 
+    public function isAdmin(){
+        return $this->rank >= 3;
+    }
+
     public function memberInGroups(){
         return $this->belongsToMany(Group::class)->whereNull('deleted_at');
     }
 
     public function ownedGroups() {
         return $this->hasMany(Group::class, 'owner_id')->whereNull('deleted_at');
+    }
+
+    public function mangas(){
+        return $this->hasMany(Manga::class, 'created_by')->whereNull('deleted_at');
     }
 }

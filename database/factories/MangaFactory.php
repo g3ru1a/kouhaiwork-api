@@ -17,6 +17,7 @@ class MangaFactory extends Factory
             'synopsis' => $this->faker->paragraph,
             'alternative_titles' => [$this->faker->sentence,$this->faker->sentence],
             'status' => 'ongoing',
+            'created_by' => 1,
     	];
     }
 }

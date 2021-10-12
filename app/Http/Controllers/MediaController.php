@@ -22,14 +22,15 @@ class MediaController extends Controller
     //     return response()->json(['media'=>$media]);
     // }
 
-    public static function upload(Request $request, $field, $folder){
-        $path = $request->file($field)->store($folder, 's3');
-        Storage::disk('s3')->setVisibility($path, 'public');
-        $media = new Media([
-            'filename' => basename($path),
-            'url' => Storage::disk('s3')->url($path)
-        ]);
-        return $media;
+    public static function upload($fileFromRequest, $folder){
+        $contents = file_get_contents($fileFromRequest);
+        $name = sha1(time()).'.'.$fileFromRequest->getClientOriginalExtension();
+        $path = $folder . '/' . $name;
+        Storage::disk('public')->put($path, $contents);
+        return Media::create([
+            'filename' => $name,
+            'url' => $path,
+       ]);
     }
 
     public static function uploadFromFile($file, $folder)

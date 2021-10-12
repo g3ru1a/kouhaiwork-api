@@ -41,4 +41,18 @@ abstract class TestCase extends BaseTestCase
             'Authorization' => 'Bearer ' . $token
         ];
     }
+
+    public function getGroupUserHeader()
+    {
+        $version = '/v' . env('APP_VERSION', 'nan');
+        $formData = [
+            'email' => 'test-mid@email.com',
+            'password' => '123456'
+        ];
+        $res = $this->json('POST', $version . '/auth/login', $formData);
+        $token = $res->response->original['data']['access_token'];
+        return [
+            'Authorization' => 'Bearer ' . $token
+        ];
+    }
 }

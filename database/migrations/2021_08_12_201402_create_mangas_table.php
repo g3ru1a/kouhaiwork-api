@@ -20,6 +20,7 @@ class CreateMangasTable extends Migration
             $table->json('alternative_titles')->nullable();
             $table->tinyText('status');
             $table->string('origin')->default('jp');
+            $table->integer('created_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

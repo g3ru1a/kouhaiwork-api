@@ -28,6 +28,18 @@ $router->group(['prefix' => '/v' . $version . '/groups', 'middleware' => ['auth'
     });
 
     /*
+    |   MANGA ROUTES
+    */
+    $router->group(['prefix' => '/mangas'], function () use ($router) {
+        /** Genres */
+        $router->get('/all', 'MangaController@allEdit');
+        $router->get('/{id}', 'MangaController@getEdit');
+        $router->post('/', 'MangaController@store');
+        $router->put('/{id}', 'MangaController@update');
+        $router->delete('/{id}', 'MangaController@delete');
+    });
+
+    /*
     |   MANGA DATA
     */
     $router->group(['prefix' => '/manga'], function () use ($router) {
