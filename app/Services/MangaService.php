@@ -19,9 +19,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class MangaService extends BaseService{
-
-    private $cacheKeys = [];
-
     public static function getCacheKeyStatic($id)
     {
         return 'manga-'.$id;

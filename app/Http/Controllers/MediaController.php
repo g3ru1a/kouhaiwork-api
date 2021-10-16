@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class MediaController extends Controller
 {
@@ -24,7 +26,7 @@ class MediaController extends Controller
 
     public static function upload($fileFromRequest, $folder){
         $contents = file_get_contents($fileFromRequest);
-        $name = sha1(time()).'.'.$fileFromRequest->getClientOriginalExtension();
+        $name = self::randomFileName().'.'.$fileFromRequest->getClientOriginalExtension();
         $path = $folder . '/' . $name;
         Storage::disk('public')->put($path, $contents);
         return Media::create([
@@ -33,34 +35,8 @@ class MediaController extends Controller
        ]);
     }
 
-    public static function uploadFromFile($file, $folder)
-    {
-        $path = $file->store($folder, 's3');
-        Storage::disk('s3')->setVisibility($path, 'public');
-        $media = new Media([
-            'filename' => basename($path),
-            'url' => Storage::disk('s3')->url($path)
-        ]);
-        return $media;
-    }
-
-    public static function uploadFromTemp($file, $folder){
-        // $path = $file->store($folder, 's3');
-        $storagePath = Storage::disk('public')->getDriver()->getAdapter()->getPathPrefix();
-        $filename = basename($file);
-        $path = Storage::disk('s3')->put($folder . '/' . $filename, fopen($storagePath . $file, 'r+'));
-        if($path == 1) $path = $folder . '/' . $filename;
-        Storage::disk('s3')->setVisibility($path, 'public');
-        $media = new Media([
-            'filename' => basename($path),
-            'url' => Storage::disk('s3')->url($path)
-        ]);
-        return $media;
-    }
-
     public static function uploadPage($file, $next_id, $folder, $first = false){
-        // $media = MediaController::uploadFromFile($file, $folder);
-        $media = MediaController::uploadFromTemp($file, $folder);
+        $media = MediaController::upload($file, $folder);
         $page = new Page();
         $page->next_id = $next_id;
         $page->first = $first;
@@ -72,20 +48,35 @@ class MediaController extends Controller
 
     public static function deleteDir($dirPath)
     {
-        if (!is_dir($dirPath)) {
-            throw new InvalidArgumentException("$dirPath must be a directory");
-        }
-        if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
-            $dirPath .= '/';
-        }
-        $files = glob($dirPath . '*', GLOB_MARK);
+        $it = new RecursiveDirectoryIterator($dirPath, RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new RecursiveIteratorIterator(
+                $it,
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
         foreach ($files as $file) {
-            if (is_dir($file)) {
-                self::deleteDir($file);
+            if ($file->isDir()) {
+                rmdir($file->getRealPath());
             } else {
-                unlink($file);
+                unlink($file->getRealPath());
             }
         }
         rmdir($dirPath);
+    }
+
+    private static function randomFileName(){
+        $str = self::generateRandomString(10);
+        $str = str_replace('==','', base64_encode($str)).sha1(time());
+        return $str;
+    }
+
+    private static function generateRandomString($length = 10)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 }

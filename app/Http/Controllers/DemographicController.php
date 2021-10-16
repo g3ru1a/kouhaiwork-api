@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Cache;
 
 class DemographicController extends Controller
 {
+    public static function cacheUpdate()
+    {
+        Cache::forget('search-parameters');
+        Cache::forget('manga-demographics');
+    }
     public function index(){
         $key = 'manga-demographics';
         if (Cache::has($key)) {
@@ -28,6 +33,7 @@ class DemographicController extends Controller
             $md = MangaDemographic::create([
                 'name' => $request->name
             ]);
+            DemographicController::cacheUpdate();
             return DemographicResource::make($md);
         } catch (\Exception $e) {
             throw $e;
@@ -41,6 +47,7 @@ class DemographicController extends Controller
             throw_if($md === null, new ModelNotFoundException('Demographic'));
             $md->name = $request->name;
             if($md->save()) {
+                DemographicController::cacheUpdate();
                 return DemographicResource::make($md);
             }
         } catch (\Exception $e) {
@@ -52,7 +59,8 @@ class DemographicController extends Controller
         try {
             $md = MangaDemographic::find($id);
             throw_if($md === null, new ModelNotFoundException('Demographic'));
-            if($md->delete()){
+            if($md->delete()) {
+                DemographicController::cacheUpdate();
                 return response()->json(['data'=>['message'=>'Successfully Deleted Demographic']]);
             }
         } catch (\Exception $e) {

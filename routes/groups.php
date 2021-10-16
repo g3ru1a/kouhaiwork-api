@@ -8,6 +8,7 @@ $version = env('APP_VERSION', 'nan');
 
 $router->group(['prefix' => '/v' . $version . '/groups', 'middleware' => ['auth', 'rank2']], function () use ($router) {
 
+    $router->get('/users/{search}', 'UserController@searchR2');
     /*
     |   USER'S GROUPS
     */
@@ -25,6 +26,19 @@ $router->group(['prefix' => '/v' . $version . '/groups', 'middleware' => ['auth'
         $router->delete('/{id}/members', 'GroupController@kickMembers');
 
         $router->post('/{id}/leave', 'GroupController@leaveGroup');
+    });
+
+    /*
+    |   CHAPTERS ROUTES
+    */
+    $router->group(['prefix' => '/chapters'], function () use ($router) {
+        /** Genres */
+        $router->post('/search', 'SearchController@chapters');
+        $router->get('/{id}', 'ChapterController@getEdit');
+        $router->post('/pages/{id}', 'ChapterController@addPages');
+        $router->post('/', 'ChapterController@store');
+        $router->put('/{id}', 'ChapterController@update');
+        $router->delete('/{id}', 'ChapterController@delete');
     });
 
     /*

@@ -19,6 +19,7 @@ class ChapterResource extends JsonResource
             'volume' => $this->when($this->volume != null, $this->volume),
             'number' => $this->number,
             'name' => $this->when($this->name != null, $this->name),
+            'uploaded' => $this->uploaded,
             'manga_id' => $this->manga_id,
             'groups' => $this->groups ? GroupCompactResource::collection($this->groups) : null,
             'manga' => MangaCompactResource::make($this->manga),

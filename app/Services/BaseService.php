@@ -126,6 +126,7 @@ abstract class BaseService
 
     /**
      * @param array $dataKeyValueArray
+     * @param boolean $preventPostDataChanges
      * @return static
      */
     public static function make($dataKeyValueArray, $preventPostDataChanges = false){

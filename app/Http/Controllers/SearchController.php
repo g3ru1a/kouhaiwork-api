@@ -2,13 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DemographicResource;
+use App\Http\Resources\GenreResource;
 use App\Http\Resources\MangaSearchResource;
+use App\Http\Resources\ThemeResource;
+use App\Models\MangaDemographic;
+use App\Models\MangaGenre;
+use App\Models\MangaTheme;
+use App\Models\Chapter;
 use App\Models\Manga;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class SearchController extends Controller
 {
-    public function search(Request $request)
+    public function mangaParams()
+    {
+        if(Cache::has('search-parameters')){
+            return response()->json(Cache::get('search-parameters'));
+        }
+        $genres = GenreResource::collection(MangaGenre::all());
+        $demographics = DemographicResource::collection(MangaDemographic::all());
+        $themes = ThemeResource::collection(MangaTheme::all());
+        $params = ['g' => $genres, 'd' => $demographics, 't' => $themes];
+        Cache::put('search-parameters', $params);
+        return response()->json($params);
+    }
+
+    public function manga(Request $request)
     {
         $this->validate($request, [
             'search' => 'string',
@@ -80,5 +102,29 @@ class SearchController extends Controller
         if (count($manga) != 0) {
             return MangaSearchResource::collection($manga);
         } else return response()->json(['message' => 'Could not find the specified manga in our database.']);
+    }
+
+    public function chapters(Request $request)
+    {
+        $this->validate($request, [
+            'search' => 'required|string'
+        ]);
+        $s = str_replace('_', ' ', strtolower($request->search));
+        $groups = [];
+        foreach (AuthService::user()->ownedGroups as $group) {
+            array_push($groups, $group->id);
+        }
+        $chaps = Chapter::with('pages', 'manga', 'manga.cover')->withCount('pages')->where('uploaded', true)
+            ->where(function ($query) use ($s) {
+                $query->where('number', 'like', '%' . $s . '%')
+                    ->orWhere('name', 'like', '%' . $s . '%')
+                    ->orWhere('volume', 'like', '%' . $s . '%')
+                    ->orWhereHas('manga', function ($q) use ($s) {
+                        $q->where('title', 'like', '%' . $s . '%')
+                            ->orWhere('alternative_titles', 'like', '%' . $s . '%');
+                    });
+            })
+            ->whereIn('group_id', $groups)->get();
+        return count($chaps) > 0 ? $chaps : response()->json(['message' => 'Chapter not found'], 422);
     }
 }

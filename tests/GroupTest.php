@@ -111,7 +111,7 @@ class GroupTest extends TestCase
 
     public function test_handle_delete_group_where_user_is_not_owner()
     {
-        $res = $this->json('DELETE', $this->prefix . '/6', [], $this->getAdminHeader());
+        $res = $this->json('DELETE', $this->prefix . '/2', [], $this->getAdminHeader());
         $statusCode = $res->response->getStatusCode();
         $this->assertTrue(isset($statusCode) && $statusCode == 406);
     }
@@ -131,7 +131,7 @@ class GroupTest extends TestCase
 
     public function test_handle_get_group_members_where_user_is_not_owner()
     {
-        $res = $this->json('GET', $this->prefix . '/6/members', [], $this->getAdminHeader());
+        $res = $this->json('GET', $this->prefix . '/2/members', [], $this->getAdminHeader());
         $statusCode = $res->response->getStatusCode();
         $this->assertTrue(isset($statusCode) && $statusCode == 406);
     }
@@ -145,7 +145,7 @@ class GroupTest extends TestCase
 
     public function test_can_add_group_members()
     {
-        $res = $this->json('POST', $this->prefix . '/2/members', [
+        $res = $this->json('POST', $this->prefix . '/5/members', [
             'users' => json_encode(['2'])
         ], $this->getAdminHeader());
         $statusCode = $res->response->getStatusCode();
@@ -154,7 +154,7 @@ class GroupTest extends TestCase
 
     public function test_handle_add_group_members_where_user_is_not_owner()
     {
-        $res = $this->json('POST', $this->prefix . '/6/members', [
+        $res = $this->json('POST', $this->prefix . '/2/members', [
             'users' => json_encode(['2'])
         ], $this->getAdminHeader());
         $statusCode = $res->response->getStatusCode();
@@ -181,7 +181,7 @@ class GroupTest extends TestCase
 
     public function test_handle_kick_group_members_where_user_is_not_owner()
     {
-        $res = $this->json('DELETE', $this->prefix . '/6/members', [
+        $res = $this->json('DELETE', $this->prefix . '/2/members', [
             'members' => json_encode(['2'])
         ], $this->getAdminHeader());
         $statusCode = $res->response->getStatusCode();
@@ -199,21 +199,21 @@ class GroupTest extends TestCase
 
     public function test_can_leave_group()
     {
-        $res = $this->json('POST', $this->prefix . '/6/leave', [], $this->getAdminHeader());
+        $res = $this->json('POST', $this->prefix . '/2/leave', [], $this->getAdminHeader());
         $statusCode = $res->response->getStatusCode();
         $this->assertTrue(isset($statusCode) && $statusCode == 200);
     }
 
     public function test_handle_leave_group_that_user_owns()
     {
-        $res = $this->json('POST', $this->prefix . '/2/leave', [], $this->getAdminHeader());
+        $res = $this->json('POST', $this->prefix . '/5/leave', [], $this->getAdminHeader());
         $statusCode = $res->response->getStatusCode();
         $this->assertTrue(isset($statusCode) && $statusCode == 406);
     }
 
     public function test_handle_leave_group_that_user_is_not_part_of()
     {
-        $res = $this->json('POST', $this->prefix . '/7/leave', [], $this->getAdminHeader());
+        $res = $this->json('POST', $this->prefix . '/3/leave', [], $this->getAdminHeader());
         $statusCode = $res->response->getStatusCode();
         $this->assertTrue(isset($statusCode) && $statusCode == 406);
     }

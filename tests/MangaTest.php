@@ -42,6 +42,20 @@ class MangaTest extends TestCase
         $this->assertEquals(1, $data->data->id, "ID does not match.");
     }
 
+    public function test_can_get_chapters()
+    {
+        $res = $this->json('GET', $this->prefixPublic . '/chapters/1');
+        $data = $res->response->getData();
+        $this->assertEquals(1, count($data->data), "Number of chapters does not match.");
+    }
+
+    public function test_handle_get_chapters_from_manga_that_doesnt_exist()
+    {
+        $res = $this->json('GET', $this->prefixPublic . '/chapters/69');
+        $status = $res->response->getStatusCode();
+        $this->assertEquals(404, $status, "Status code does not match.");
+    }
+
     public function test_handle_get_one_manga_that_doesnt_exist()
     {
         $res = $this->json('GET', $this->prefixPublic . '/get/69');

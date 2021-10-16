@@ -22,19 +22,34 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     });
 
     /*
+    |   SEARCH ROUTES
+    */
+    $router->group(['prefix' => '/search'], function () use ($router) {
+        /** Information */
+        $router->post('/manga', 'SearchController@manga');
+        $router->get('/parameters', 'SearchController@mangaParams');
+    });
+
+    /*
+    |   CHAPTERS ROUTES
+    */
+    $router->group(['prefix' => '/chapters'], function () use ($router) {
+        /** Information */
+        $router->get('/latest', 'ChapterController@latest');
+        $router->get('/get/{id}', 'ChapterController@get');
+    });
+
+    /*
     |   MANGA ROUTES
     */
     $router->group(['prefix' => '/manga'], function () use ($router) {
         /** Information */
-        // $router->get('/latest', 'MangaController@latest');
-        // $router->get('/all', 'MangaController@all');
         // $router->get('/week', 'MangaController@week');
-        $router->post('/search', 'SearchController@search');
         $router->get('/all', 'MangaController@all');
         $router->get('/get/{id}', 'MangaController@get');
+        $router->get('/chapters/{id}', 'MangaController@getChapters');
 
         /** Option Getters */
-        $router->get('/search/parameters', 'MangaOptionsController@searchParams');
         $router->get('/genres', 'GenreController@index');
         $router->get('/themes', 'ThemeController@index');
         $router->get('/demographics', 'DemographicController@index');

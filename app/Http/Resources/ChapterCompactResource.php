@@ -19,6 +19,7 @@ class ChapterCompactResource extends JsonResource
             'volume' => $this->when($this->volume != null, $this->volume),
             'number' => $this->number,
             'name' => $this->when($this->name != null, $this->name),
+            'uploaded' => $this->uploaded,
             'groups' => $this->groups ? GroupCompactResource::collection($this->groups) : null,
             'updated_at' => $this->updated_at,
         ];

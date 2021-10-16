@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Cache;
 
 class ThemeController extends Controller
 {
+    public static function cacheUpdate()
+    {
+        Cache::forget('search-parameters');
+        Cache::forget('manga-themes');
+    }
     public function index(){
         $key = 'manga-themes';
         if (Cache::has($key)) {
@@ -28,6 +33,7 @@ class ThemeController extends Controller
             $mt = MangaTheme::create([
                 'name' => $request->name
             ]);
+            ThemeController::cacheUpdate();
             return ThemeResource::make($mt);
         } catch (\Exception $e) {
             throw $e;
@@ -41,6 +47,7 @@ class ThemeController extends Controller
             throw_if($mt === null, new ModelNotFoundException('Theme'));
             $mt->name = $request->name;
             if($mt->save()) {
+                ThemeController::cacheUpdate();
                 return ThemeResource::make($mt);
             }
         } catch (\Exception $e) {
@@ -52,7 +59,8 @@ class ThemeController extends Controller
         try {
             $mt = MangaTheme::find($id);
             throw_if($mt === null, new ModelNotFoundException('Theme'));
-            if($mt->delete()){
+            if($mt->delete()) {
+                ThemeController::cacheUpdate();
                 return response()->json(['data'=>['message'=>'Successfully Deleted Theme']]);
             }
         } catch (\Exception $e) {

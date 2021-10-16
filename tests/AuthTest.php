@@ -65,7 +65,7 @@ class AuthTest extends TestCase
         $res = $this->json('POST', '/v' . $this->version . '/auth/register', $formData);
         $this->assertTrue(
             isset($res->response->original['data']['user']) &&
-            $res->response->original['data']['user']->id === 3);
+            $res->response->original['data']['user']->id === 4);
     }
 
     public function test_handle_register_with_wrong_data()

@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Cache;
 
 class GenreController extends Controller
 {
+    public static function cacheUpdate(){
+        Cache::forget('search-parameters');
+        Cache::forget('manga-genres');
+    }
     public function index(){
         $key = 'manga-genres';
         if (Cache::has($key)) {
@@ -28,6 +32,7 @@ class GenreController extends Controller
             $mg = MangaGenre::create([
                 'name' => $request->name
             ]);
+            GenreController::cacheUpdate();
             return GenreResource::make($mg);
         } catch (\Exception $e) {
             throw $e;
@@ -40,6 +45,7 @@ class GenreController extends Controller
             throw_if($mg === null, new ModelNotFoundException('Genre'));
             $mg->name = $request->name;
             if($mg->save()) {
+                GenreController::cacheUpdate();
                 return GenreResource::make($mg);
             }
         } catch (\Exception $e) {
@@ -51,7 +57,8 @@ class GenreController extends Controller
         try {
             $mg = MangaGenre::find($id);
             throw_if($mg === null, new ModelNotFoundException('Genre'));
-            if($mg->delete()){
+            if($mg->delete()) {
+                GenreController::cacheUpdate();
                 return response()->json(['data'=> ['message'=>'Successfully Deleted Genre']]);
             }
         } catch (\Exception $e) {
