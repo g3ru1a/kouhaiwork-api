@@ -17,6 +17,7 @@ class GroupCompactResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'owner_id' => $this->owner_id,
         ];
     }
 }

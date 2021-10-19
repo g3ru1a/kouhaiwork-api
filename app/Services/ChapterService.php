@@ -42,6 +42,7 @@ class ChapterService extends BaseService{
     {
         parent::postDataChanges();
         Cache::forget('latest-chapter');
+        Cache::forget('chapters-recent');
         Cache::forget('full-chapter-'.$this->getSingleModel()->id);
     }
 

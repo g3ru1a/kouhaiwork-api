@@ -48,6 +48,7 @@ class MediaController extends Controller
 
     public static function deleteDir($dirPath)
     {
+        if(!is_dir($dirPath)) return;
         $it = new RecursiveDirectoryIterator($dirPath, RecursiveDirectoryIterator::SKIP_DOTS);
         $files = new RecursiveIteratorIterator(
                 $it,

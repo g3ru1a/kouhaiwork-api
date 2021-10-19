@@ -124,7 +124,14 @@ class SearchController extends Controller
                             ->orWhere('alternative_titles', 'like', '%' . $s . '%');
                     });
             })
-            ->whereIn('group_id', $groups)->get();
+            ->get();
+        $arr = [];
+        foreach($chaps as $c){
+            $g = array_column($c->groups->toArray(), 'id');
+            if (array_intersect($g, $groups)) {
+                array_push($arr, $c);
+            }
+        }
         return count($chaps) > 0 ? $chaps : response()->json(['message' => 'Chapter not found'], 422);
     }
 }

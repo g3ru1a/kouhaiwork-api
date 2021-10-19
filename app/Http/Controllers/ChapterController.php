@@ -10,9 +10,24 @@ use App\Models\Chapter;
 use App\Services\ChapterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ChapterController extends Controller
 {
+    public function recent()
+    {
+        $key = 'chapters-recent';
+        if (Cache::has($key)) {
+            return ChapterResource::collection(Cache::pull($key));
+        }
+        $chapters = DB::table('chapters')->select(['id', 'number', 'manga_id'])->orderBy('number', 'desc')->groupBy('manga_id')
+            ->take(8)->get();
+        $chapterIDS = array_column($chapters->toArray(), 'id');
+        $chapters = Chapter::findMany($chapterIDS);
+        Cache::put($key, $chapters);
+        return ChapterResource::collection($chapters);
+    }
+
     public function latest(){
         $key = 'latest-chapter';
         if (Cache::has($key)) {

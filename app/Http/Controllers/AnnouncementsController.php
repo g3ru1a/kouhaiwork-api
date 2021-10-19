@@ -8,14 +8,20 @@ use App\Http\Resources\AnnouncementResource;
 use App\Http\Resources\ResponseResource;
 use Illuminate\Http\Request;
 use App\Models\Post;
+use Illuminate\Support\Facades\Cache;
 
 class AnnouncementsController extends Controller
 {
     public function index(){
+        $ck = 'announcements';
+        if(Cache::has($ck)){
+            return AnnouncementResource::collection(Cache::get($ck));
+        }
         $posts = Post::orderBy('updated_at', 'desc')->take(10)->get();
         foreach ($posts as $post) {
             $post->body = htmlspecialchars_decode($post->body);
         }
+        Cache::put($ck, $posts);
         return AnnouncementResource::collection($posts);
     }
 
@@ -25,6 +31,7 @@ class AnnouncementsController extends Controller
                 'title' => $request->title,
                 'body' => htmlspecialchars($request->body),
             ]);
+            Cache::forget('announcements');
         } catch (\Exception $e) {
             throw $e;
         }
@@ -41,6 +48,7 @@ class AnnouncementsController extends Controller
                 'title' => $request->title,
                 'body' => htmlspecialchars($request->body),
             ])->save();
+            Cache::forget('announcements');
         } catch (\Exception $e) {
             throw $e;
         }
@@ -53,6 +61,7 @@ class AnnouncementsController extends Controller
         throw_if($ann === null, new ModelNotFoundException('Announcement'));
         try {
             $ann->delete();
+            Cache::forget('announcements');
         } catch (\Exception $e) {
             throw $e;
         }

@@ -49,6 +49,20 @@ class MangaService extends BaseService{
         Cache::forget('mangas-all-has_chapter-user-' . AuthService::user()->id);
         Cache::forget('mangas-all-');
         Cache::forget('mangas-all-has_chapter');
+        Cache::forget('mangas-take');
+    }
+
+    public static function take($count){
+        $cacheKey = 'manga-take';
+        if(Cache::has($cacheKey)){
+            $mangas = Cache::get($cacheKey);
+            if(count($mangas) == $count){
+                return new self($mangas);
+            }
+        }
+        $mangas = Manga::with('cover')->whereNull('deleted_at')->take($count)->get();
+        Cache::put($cacheKey, $mangas);
+        return new self($mangas);
     }
 
     /**
@@ -58,7 +72,7 @@ class MangaService extends BaseService{
      */
     public static function all($condition, $checkOwner = false){
 
-        $cacheKey = 'mangas-all-'.($condition ? $condition : '');
+        $cacheKey = 'mangas-all'.($condition ? '-'.$condition : '');
         if($checkOwner){
             $cacheKey = $cacheKey.'-user-'.AuthService::user()->id;
         }
@@ -139,7 +153,7 @@ class MangaService extends BaseService{
                 $this->getSingleModel()->delete();
                 throw new BadRequestException('cover');
             }
-            return;
+            return $this;
         }
         $modelInstance = $this->getSingleModel();
         $modelInstance->cover()->delete();

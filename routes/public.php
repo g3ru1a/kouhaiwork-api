@@ -28,6 +28,8 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
         /** Information */
         $router->post('/manga', 'SearchController@manga');
         $router->get('/parameters', 'SearchController@mangaParams');
+
+        $router->get('/users/r2/{search}', 'UserController@searchR2');
     });
 
     /*
@@ -36,6 +38,7 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     $router->group(['prefix' => '/chapters'], function () use ($router) {
         /** Information */
         $router->get('/latest', 'ChapterController@latest');
+        $router->get('/recent', 'ChapterController@recent');
         $router->get('/get/{id}', 'ChapterController@get');
     });
 
@@ -44,7 +47,7 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     */
     $router->group(['prefix' => '/manga'], function () use ($router) {
         /** Information */
-        // $router->get('/week', 'MangaController@week');
+        $router->get('/recent', 'MangaController@recent');
         $router->get('/all', 'MangaController@all');
         $router->get('/get/{id}', 'MangaController@get');
         $router->get('/chapters/{id}', 'MangaController@getChapters');

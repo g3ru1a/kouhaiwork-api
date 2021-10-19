@@ -8,7 +8,6 @@ $version = env('APP_VERSION', 'nan');
 
 $router->group(['prefix' => '/v' . $version . '/groups', 'middleware' => ['auth', 'rank2']], function () use ($router) {
 
-    $router->get('/users/{search}', 'UserController@searchR2');
     /*
     |   USER'S GROUPS
     */

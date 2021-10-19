@@ -11,6 +11,10 @@ use Illuminate\Http\Request;
 
 class MangaController extends Controller
 {
+    public function recent(){
+        return MangaService::take(10)->toResourceCompact();
+    }
+
     public function all(){
         return MangaService::all('has_chapters')->toResourceCompact();
     }

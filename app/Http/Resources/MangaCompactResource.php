@@ -36,7 +36,7 @@ class MangaCompactResource extends JsonResource
     {
         $ar = [];
         foreach ($tags as $tag) {
-            array_push($ar, $tag->name);
+            array_push($ar, [$tag->id, $tag->name]);
         }
         return $ar;
     }
