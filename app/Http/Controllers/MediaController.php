@@ -13,16 +13,19 @@ use RecursiveIteratorIterator;
 
 class MediaController extends Controller
 {
-    // public function test(Request $request){
-    //     $path = $request->file('image')->store('images', 's3');
-    //     Storage::disk('s3')->setVisibility($path, 'public');
-    //     $media = Media::create([
-    //         'filename' => basename($path),
-    //         'url' => Storage::disk('s3')->url($path)
-    //     ]);
-
-    //     return response()->json(['media'=>$media]);
-    // }
+    public function detachS3(){
+        $media = Media::all();
+        foreach($media as $m){
+            $filename = explode('/', $m->url);
+            $filename = end($filename);
+            $ext = explode('.', $m->url);
+            $ext = end($ext);
+            $path = str_replace('https://s3.eu-west-1.amazonaws.com/uploads.kouhai.work/', '', $m->url);
+            $m->url = $path;
+            $m->filename = $filename;
+            $m->save();
+        }
+    }
 
     public static function upload($fileFromRequest, $folder){
         $contents = file_get_contents($fileFromRequest);

@@ -22,6 +22,10 @@ class ChapterCompactResource extends JsonResource
             'uploaded' => $this->uploaded,
             'groups' => $this->groups ? GroupCompactResource::collection($this->groups) : null,
             'updated_at' => $this->updated_at,
+            'manga' => [
+                'id' => $this->manga->id,
+                'cover' => $this->manga->cover->url
+            ]
         ];
     }
 }
