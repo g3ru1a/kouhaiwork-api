@@ -47,7 +47,7 @@ class MangaService extends BaseService{
         parent::postDataChanges();
         Cache::forget('mangas-all-user-'.AuthService::user()->id);
         Cache::forget('mangas-all-has_chapter-user-' . AuthService::user()->id);
-        Cache::forget('mangas-all-');
+        Cache::forget('mangas-all');
         Cache::forget('mangas-all-has_chapter');
         Cache::forget('mangas-take');
     }
@@ -73,7 +73,7 @@ class MangaService extends BaseService{
     public static function all($condition, $checkOwner = false){
 
         $cacheKey = 'mangas-all'.($condition ? '-'.$condition : '');
-        if($checkOwner){
+        if($checkOwner && !AuthService::user()->isAdmin()){
             $cacheKey = $cacheKey.'-user-'.AuthService::user()->id;
         }
 
