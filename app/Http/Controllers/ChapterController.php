@@ -8,6 +8,7 @@ use App\Http\Requests\ChapterRequest;
 use App\Http\Resources\ChapterCompactResource;
 use App\Http\Resources\ChapterResource;
 use App\Models\Chapter;
+use App\Models\Group;
 use App\Services\ChapterService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -16,6 +17,17 @@ use Illuminate\Support\Facades\DB;
 
 class ChapterController extends Controller
 {
+    public function relinkGroups(){
+        $chapters = Chapter::whereNull('deleted_at')->where('uploaded', true)->get();
+        foreach($chapters as $c){
+            if($c->group_id === null) continue;
+            $g = Group::findOrFail($c->group_id);
+            $c->groups()->attach($g);
+            $c->group_id = null;
+            $c->save();
+        }
+    }
+
     public function recent()
     {
         $key = 'chapters-recent';
