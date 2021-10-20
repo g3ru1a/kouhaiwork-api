@@ -19,6 +19,11 @@ class MangaController extends Controller
         return MangaService::all('has_chapters')->toResourceCompact();
     }
 
+    public function allUpload()
+    {
+        return MangaService::all(null, false)->toResourceCompact();
+    }
+
     public function get($id)
     {
         return MangaService::find($id)->toResource();
