@@ -62,7 +62,9 @@ class ChapterService extends BaseService{
         $pages = $request->file('pages');
         if (count($this->getSingleModel()->pages) == 0) $next_id = null;
         else $next_id = $this->getSingleModel()->pages->first()->id;
-        foreach ($pages as $page) {
+        for($i = count($pages)-1; $i >= 0; $i--){
+        // foreach ($pages as $page) {
+            $page = $pages[$i];
             $p = MediaController::uploadPage($page, $next_id, $folder);
             $this->getSingleModel()->pages()->save($p);
             $next_id = $p->id;
