@@ -60,7 +60,9 @@ class MangaService extends BaseService{
                 return new self($mangas);
             }
         }
-        $mangas = Manga::with('cover')->whereNull('deleted_at')->take($count)->get();
+        $mangas = Manga::with('cover')->whereNull('deleted_at')->whereHas('chapters', function ($query) {
+            $query->where('uploaded', true);
+        })->take($count)->get();
         Cache::put($cacheKey, $mangas);
         return new self($mangas);
     }
