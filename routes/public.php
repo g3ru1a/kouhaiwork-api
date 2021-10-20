@@ -7,7 +7,7 @@ use PHPUnit\TextUI\XmlConfiguration\Php;
 $version = env('APP_VERSION', 'nan');
 
 $router->group(['prefix' => '/v' . $version], function () use ($router) {
-    $router->get('/groupslink', 'ChapterController@relinkGroups');
+    // $router->get('/groupslink', 'ChapterController@relinkGroups');
     /*
     |   AUTHENTICATION ROUTES
     */

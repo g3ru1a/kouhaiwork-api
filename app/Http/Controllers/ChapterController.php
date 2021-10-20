@@ -17,16 +17,16 @@ use Illuminate\Support\Facades\DB;
 
 class ChapterController extends Controller
 {
-    public function relinkGroups(){
-        $chapters = Chapter::whereNull('deleted_at')->where('uploaded', true)->get();
-        foreach($chapters as $c){
-            if($c->group_id === null) continue;
-            $g = Group::findOrFail($c->group_id);
-            $c->groups()->attach($g);
-            $c->group_id = null;
-            $c->save();
-        }
-    }
+    // public function relinkGroups(){
+    //     $chapters = Chapter::whereNull('deleted_at')->where('uploaded', true)->get();
+    //     foreach($chapters as $c){
+    //         if($c->group_id === null) continue;
+    //         $g = Group::findOrFail($c->group_id);
+    //         $c->groups()->attach($g);
+    //         $c->group_id = null;
+    //         $c->save();
+    //     }
+    // }
 
     public function recent()
     {
