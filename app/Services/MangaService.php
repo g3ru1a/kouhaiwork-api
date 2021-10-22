@@ -62,7 +62,7 @@ class MangaService extends BaseService{
         }
         $mangas = Manga::with('cover')->whereNull('deleted_at')->whereHas('chapters', function ($query) {
             $query->where('uploaded', true);
-        })->take($count)->get();
+        })->orderBy('updated_at', 'desc')->take($count)->get();
         Cache::put($cacheKey, $mangas);
         return new self($mangas);
     }
