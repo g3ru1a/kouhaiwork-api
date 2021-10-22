@@ -34,11 +34,7 @@ class ChapterController extends Controller
         if (Cache::has($key)) {
             return ChapterCompactResource::collection(Cache::get($key));
         }
-        $chapters = DB::table('chapters')->where('deleted_at', null)->select(['id', 'number', 'manga_id'])->orderBy('number', 'desc')->groupBy('manga_id')
-            ->get();
-        $chapters = $chapters->slice(0, 8);
-        $chapterIDS = array_column($chapters->toArray(), 'id');
-        $chapters = Chapter::findMany($chapterIDS);
+        $chapters = Chapter::whereNull('deleted_at')->orderBy('updated_at', 'desc')->get()->unique('manga_id')->take(8);
         Cache::put($key, $chapters);
         return ChapterCompactResource::collection($chapters);
     }
