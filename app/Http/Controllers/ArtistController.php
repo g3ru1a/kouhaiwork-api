@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Cache;
 
 class ArtistController extends Controller
 {
+    public static function cacheUpdate()
+    {
+        Cache::forget('search-parameters');
+        Cache::forget('manga-artists');
+    }
     public function index()
     {
         $key = 'manga-artists';
@@ -30,6 +35,7 @@ class ArtistController extends Controller
             $artist = Artist::create([
                 'name' => $request->name,
             ]);
+            ArtistController::cacheUpdate();
             return ArtistResource::make($artist);
         } catch (\Exception $e) {
             throw $e;
@@ -43,6 +49,7 @@ class ArtistController extends Controller
             throw_if($artist === null, new ModelNotFoundException('Artist'));
             $artist->name = $request->name;
             if ($artist->save()) {
+                ArtistController::cacheUpdate();
                 return ArtistResource::make($artist);
             }
         } catch (\Exception $e) {
@@ -56,6 +63,7 @@ class ArtistController extends Controller
             $artist = Artist::find($id);
             throw_if($artist === null, new ModelNotFoundException('Artist'));
             if ($artist->delete()) {
+                ArtistController::cacheUpdate();
                 return response()->json(['data' => ['message' => 'Successfully Deleted Artist']]);
             }
         } catch (\Exception $e) {

@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Cache;
 
 class AuthorController extends Controller
 {
+    public static function cacheUpdate()
+    {
+        Cache::forget('search-parameters');
+        Cache::forget('manga-authors');
+    }
     public function index()
     {
         $key = 'manga-authors';
@@ -30,6 +35,7 @@ class AuthorController extends Controller
             $author =Author::create([
                 'name' => $request->name
             ]);
+            AuthorController::cacheUpdate();
             return AuthorResource::make($author);
         } catch (\Exception $e) {
             throw $e;
@@ -43,6 +49,7 @@ class AuthorController extends Controller
             throw_if($author === null, new ModelNotFoundException('Author'));
             $author->name = $request->name;
             if ($author->save()) {
+                AuthorController::cacheUpdate();
                 return AuthorResource::make($author);
             }
         } catch (\Exception $e) {
@@ -56,6 +63,7 @@ class AuthorController extends Controller
             $author = Author::find($id);
             throw_if($author === null, new ModelNotFoundException('Author'));
             if ($author->delete()) {
+                AuthorController::cacheUpdate();
                 return response()->json(['data' => ['message' => 'Successfully Deleted Author']]);
             }
         } catch (\Exception $e) {
