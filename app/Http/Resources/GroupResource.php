@@ -18,6 +18,7 @@ class GroupResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'owner' => $this->owner,
+            'banner' => $this->banner ? $this->banner->url : null,
             'members' => GroupMemberResource::collection($this->members)
         ];
     }

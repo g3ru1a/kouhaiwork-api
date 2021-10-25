@@ -15,6 +15,7 @@ $router->group(['prefix' => '/v' . $version . '/groups', 'middleware' => ['auth'
 
         $router->get('/', 'GroupController@index');
         $router->post('/', 'GroupController@store');
+        $router->post('/{id}/banner', 'GroupController@storeBanner');
         $router->put('/{id}', 'GroupController@update');
         $router->delete('/{id}', 'GroupController@delete');
 

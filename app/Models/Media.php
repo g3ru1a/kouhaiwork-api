@@ -13,17 +13,6 @@ class Media extends Model
 
     protected $guarded = [];
 
-    // protected static function booted()
-    // {
-    //     static::deleting(function ($media) {
-    //         // $file = base64_decode($media->filename);
-    //         // $url = str_replace('https://s3.eu-west-1.amazonaws.com', '', $media->url);
-    //         // $media->url = 'cringe';
-    //         // $media->save();
-    //         // Storage::disk('s3')->delete($file);
-    //     });
-    // }
-
     public function imageable()
     {
         return $this->morphTo();

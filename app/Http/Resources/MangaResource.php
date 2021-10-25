@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Manga;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,6 +16,7 @@ class MangaResource extends JsonResource
      */
     public function toArray($request)
     {
+        $groups = Manga::getGroups($this->id);
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -22,8 +24,8 @@ class MangaResource extends JsonResource
             'status' => $this->status,
             'origin' => $this->origin,
             'created_by' => User::find($this->created_by),
-            'groups' => GroupCompactResource::collection($this->groups),
             'cover' => $this->cover->url,
+            'groups' => $groups ? GroupCompactResource::collection($groups) : null,
             'genres' => $this->when(count($this->genres) > 0, $this->tagToArray($this->genres)),
             'themes' => $this->when(count($this->themes) > 0, $this->tagToArray($this->themes)),
             'demographics' => $this->when(count($this->demographics) > 0, $this->tagToArray($this->demographics)),

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -36,8 +37,17 @@ class Manga extends Model
         return $this->belongsToMany(MangaDemographic::class);
     }
 
-    public function groups(){
-        return $this->belongsToMany(Group::class);
+    public static function getGroups($id){
+        $m = Manga::findOrFail($id);
+        $chapters = $m->chapters;
+        $groups = new Collection();
+        foreach($chapters as $c){
+            foreach($c->groups as $g){
+                $groups->add($g);
+            }
+        }
+        $groups = $groups->unique();
+        return $groups;
     }
 
     public function authors(){

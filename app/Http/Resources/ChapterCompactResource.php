@@ -24,6 +24,7 @@ class ChapterCompactResource extends JsonResource
             'updated_at' => $this->updated_at,
             'manga' => [
                 'id' => $this->manga->id,
+                'title' => $this->manga->title,
                 'cover' => $this->manga->cover->url
             ]
         ];

@@ -12,6 +12,7 @@ use App\Services\AuthService;
 use Illuminate\Support\Facades\Cache;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\InvalidParameterException;
+use App\Http\Controllers\MediaController;
 
 class GroupService extends BaseService
 {
@@ -47,6 +48,9 @@ class GroupService extends BaseService
         if ($this->getSingleModel() && $this->getSingleModel()->owner_id !== $user->id) {
             Cache::forget('user-' . $user->id . '-groups-member');
         }
+
+        Cache::forget('groups-all');
+        Cache::forget('group-'. $this->getSingleModel()->id.'-series');
     }
 
     /**
@@ -99,6 +103,16 @@ class GroupService extends BaseService
             );
         }
         return $instance;
+    }
+
+    public function updateBanner($request){
+        $modelInstance = $this->getSingleModel();
+        $modelInstance->banner()->delete();
+        $media = MediaController::upload($request->file('banner'), 'banners/' . $modelInstance->id);
+        $modelInstance->banner()->save($media);
+        $this->setSingleModel($modelInstance);
+        $this->postDataChanges();
+        return $this;
     }
 
     /**

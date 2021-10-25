@@ -18,6 +18,7 @@ class GroupCompactResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'owner_id' => $this->owner_id,
+            'banner' => $this->banner ? $this->banner->url : null,
         ];
     }
 }

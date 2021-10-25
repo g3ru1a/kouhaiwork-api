@@ -43,6 +43,16 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     });
 
     /*
+    |   CHAPTERS ROUTES
+    */
+    $router->group(['prefix' => '/groups'], function () use ($router) {
+        /** Information */
+        $router->get('/all', 'GroupController@all');
+        $router->get('/{id}/series', 'GroupController@getSeries');
+        $router->get('/get/{id}', 'GroupController@get');
+    });
+
+    /*
     |   MANGA ROUTES
     */
     $router->group(['prefix' => '/manga'], function () use ($router) {

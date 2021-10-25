@@ -124,7 +124,7 @@ class ChapterService extends BaseService{
             foreach ($groups as $group_id) {
                 $group = Group::find($group_id);
                 throw_if($group === null, new ModelNotFoundException('Group'));
-                throw_if($group->owner_id !== AuthService::user()->id, new InvalidParameterException('groups'));
+                // throw_if($group->owner_id !== AuthService::user()->id, new InvalidParameterException('groups'));
                 $group->chapters()->attach($instance->getSingleModel());
             }
             $instance->setSingleModel($instance->getSingleModel()->refresh());
@@ -156,7 +156,7 @@ class ChapterService extends BaseService{
             foreach ($groups as $group_id) {
                 $group = Group::find($group_id);
                 throw_if($group === null, new ModelNotFoundException('Group'));
-                throw_if($group->owner_id !== AuthService::user()->id, new InvalidParameterException('groups'));
+                // throw_if($group->owner_id !== AuthService::user()->id, new InvalidParameterException('groups'));
                 $group->chapters()->attach($instance->getSingleModel());
             }
             $instance->setSingleModel($instance->getSingleModel()->refresh());
