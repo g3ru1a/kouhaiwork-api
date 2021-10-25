@@ -29,9 +29,7 @@ class ChapterRequest extends FormRequest
         return [
             'manga_id' => 'required|string',
             'volume' => 'string',
-            'number' => ['required', 'numeric', Rule::unique('chapters', 'number')->where(function ($query) use ($manga_id) {
-                return $query->where('manga_id', $manga_id)->whereNull('deleted_at');
-            })],
+            'number' => ['required', 'numeric'],
             'name' => 'string',
             'groups' => 'string|required',
         ];

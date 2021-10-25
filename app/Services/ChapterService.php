@@ -11,6 +11,7 @@ use App\Models\Chapter;
 use App\Models\Group;
 use App\Models\Manga;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class ChapterService extends BaseService{
 
@@ -62,12 +63,19 @@ class ChapterService extends BaseService{
         $pages = $request->file('pages');
         if (count($this->getSingleModel()->pages) == 0) $next_id = null;
         else $next_id = $this->getSingleModel()->pages->first()->id;
-        for($i = count($pages)-1; $i >= 0; $i--){
-        // foreach ($pages as $page) {
-            $page = $pages[$i];
-            $p = MediaController::uploadPage($page, $next_id, $folder);
-            $this->getSingleModel()->pages()->save($p);
-            $next_id = $p->id;
+        Log::info('Page count: ' . count($pages));
+        Log::info($request);
+        try {
+            for ($i = count($pages) - 1; $i >= 0; $i--) {
+                // foreach ($pages as $page) {
+                $page = $pages[$i];
+                $p = MediaController::uploadPage($page, $next_id, $folder);
+                $this->getSingleModel()->pages()->save($p);
+                $next_id = $p->id;
+            }
+        } catch (\Throwable $th) {
+            $this->delete();
+            throw $th;
         }
 
         $this->getSingleModel()->uploaded = true;
@@ -103,6 +111,10 @@ class ChapterService extends BaseService{
      * @return self
      */
     public static function make($dataKeyValueArray, $preventPostDataChanges = false){
+        $check = Chapter::whereNull('deleted_at')->where('number', $dataKeyValueArray['number'])
+            ->where('manga_id',  $dataKeyValueArray['manga_id'])->get();
+        throw_if($check && count($check) > 0, new InvalidParameterException('number'));
+
         $manga = Manga::find($dataKeyValueArray['manga_id']);
         throw_if($manga === null, new ModelNotFoundException('Manga'));
         $instance = parent::make($dataKeyValueArray, $preventPostDataChanges);
@@ -129,6 +141,11 @@ class ChapterService extends BaseService{
      */
     public function update($dataKeyValueArray)
     {
+        $check = Chapter::whereNull('deleted_at')->where('id', '!=', $this->getSingleModel()->id)
+            ->where('number', $dataKeyValueArray['number'])
+            ->where('manga_id',  $dataKeyValueArray['manga_id'])->get();
+        throw_if($check && count($check) > 0, new InvalidParameterException('number'));
+
         $manga = Manga::find($dataKeyValueArray['manga_id']);
         throw_if($manga === null, new ModelNotFoundException('Manga'));
         $instance = parent::update($dataKeyValueArray);
