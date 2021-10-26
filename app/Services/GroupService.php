@@ -50,6 +50,7 @@ class GroupService extends BaseService
         }
 
         Cache::forget('groups-all');
+        Cache::forget('groups-all-no-chap');
         Cache::forget('group-'. $this->getSingleModel()->id.'-series');
     }
 
