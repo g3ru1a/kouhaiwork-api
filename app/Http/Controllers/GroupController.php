@@ -17,14 +17,24 @@ use Illuminate\Support\Facades\Cache;
 
 class GroupController extends Controller
 {
-    public function all(){
-        if(Cache::has('groups-all')){
-            return GroupCompactResource::collection(Cache::get('groups-all'));
+    public function all($no_chap = false){
+        if(isset($no_chap) && $no_chap == true){
+            $key = 'groups-all-no-chap';
+            if (Cache::has($key)) {
+                return GroupCompactResource::collection(Cache::get($key));
+            }
+            $grps = Group::whereNull('deleted_at')->orderBy('created_at', 'asc')->get();
+            Cache::put($key, $grps);
+        }else {
+            $key = 'groups-all';
+            if (Cache::has($key)) {
+                return GroupCompactResource::collection(Cache::get($key));
+            }
+            $grps = Group::whereNull('deleted_at')->whereHas('chapters', function (Builder $query) {
+                $query->where('uploaded', true);
+            })->orderBy('created_at', 'asc')->get();
+            Cache::put($key, $grps);
         }
-        $grps = Group::whereNull('deleted_at')->whereHas('chapters', function (Builder $query) {
-            $query->where('uploaded', true);
-        })->orderBy('created_at', 'asc')->get();
-        Cache::put('groups-all', $grps);
         return GroupCompactResource::collection($grps);
     }
 

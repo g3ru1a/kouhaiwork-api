@@ -47,7 +47,7 @@ $router->group(['prefix' => '/v' . $version], function () use ($router) {
     */
     $router->group(['prefix' => '/groups'], function () use ($router) {
         /** Information */
-        $router->get('/all', 'GroupController@all');
+        $router->get('/all[/{no_chap}]', 'GroupController@all');
         $router->get('/{id}/series', 'GroupController@getSeries');
         $router->get('/get/{id}', 'GroupController@get');
     });
