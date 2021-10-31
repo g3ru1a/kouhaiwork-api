@@ -19,6 +19,7 @@ class AnnouncementResource extends JsonResource
             'title' => $this->title,
             'body' => $this->body,
             'date' => $this->updated_at,
+            'created_at' => $this->created_at
         ];
     }
 }
